@@ -110,6 +110,210 @@ body {
     stroke: #6f7c95;
 }
 
+button.topbar-note {
+    border: 0;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+    padding: 10px 12px;
+    border-radius: 10px;
+    transition: background .16s ease, color .16s ease;
+}
+
+button.topbar-note:hover {
+    background: var(--blue-soft);
+    color: var(--blue-strong);
+}
+
+.history-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(15, 28, 52, .34);
+    backdrop-filter: blur(4px);
+    z-index: 50;
+}
+
+.history-modal.open {
+    display: flex;
+}
+
+.history-card {
+    width: min(940px, 100%);
+    max-height: min(760px, calc(100vh - 48px));
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--line-soft);
+    border-radius: 20px;
+    box-shadow: 0 28px 80px rgba(15, 32, 65, .18);
+    display: flex;
+    flex-direction: column;
+}
+
+.history-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 24px 26px 18px;
+    border-bottom: 1px solid var(--line-soft);
+}
+
+.history-head h2 {
+    margin: 0 0 5px;
+    font-size: 22px;
+}
+
+.history-head p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.history-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.icon-btn,
+.refresh-btn {
+    border: 1px solid var(--line);
+    background: #fff;
+    color: #58667d;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+}
+
+.refresh-btn {
+    height: 40px;
+    border-radius: 10px;
+    padding: 0 14px;
+}
+
+.icon-btn:hover,
+.refresh-btn:hover {
+    background: #f7f9fd;
+}
+
+.history-body {
+    padding: 18px 26px 26px;
+    overflow: auto;
+}
+
+.history-empty {
+    padding: 48px 18px;
+    text-align: center;
+    color: var(--muted);
+    border: 1px dashed var(--line);
+    border-radius: 14px;
+    background: #fbfcff;
+}
+
+.history-list {
+    display: grid;
+    gap: 12px;
+}
+
+.history-item {
+    display: grid;
+    grid-template-columns: 86px minmax(140px, 1.15fr) minmax(130px, 1fr) 130px 170px;
+    gap: 14px;
+    align-items: center;
+    padding: 15px 16px;
+    border: 1px solid var(--line-soft);
+    border-radius: 14px;
+    background: #fff;
+}
+
+.history-item.header {
+    padding-top: 4px;
+    padding-bottom: 8px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #8995a9;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.history-folio {
+    font-weight: 800;
+    color: var(--blue-strong);
+}
+
+.history-ip,
+.history-dest,
+.history-date {
+    color: #65728a;
+    font-size: 13px;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 92px;
+    min-height: 30px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .01em;
+}
+
+.status-pending {
+    color: #856914;
+    background: #fff7d7;
+}
+
+.status-applying,
+.status-revoking {
+    color: #245cb8;
+    background: #eaf2ff;
+}
+
+.status-active {
+    color: #17734b;
+    background: #eaf8f1;
+}
+
+.status-revoked {
+    color: #65728a;
+    background: #f0f3f7;
+}
+
+.status-error {
+    color: #a53443;
+    background: #fff0f2;
+}
+
+.status-unknown {
+    color: #65728a;
+    background: #f2f4f8;
+}
+
+.history-note {
+    margin-top: 16px;
+    color: #8a96aa;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
 .page {
     width: min(1320px, calc(100% - 40px));
     margin: 0 auto;
@@ -704,6 +908,43 @@ select:focus {
         width: 54px;
         height: 54px;
     }
+
+    .history-modal {
+        padding: 10px;
+    }
+
+    .history-head {
+        align-items: flex-start;
+        padding: 18px;
+    }
+
+    .history-head p {
+        max-width: 220px;
+    }
+
+    .refresh-btn {
+        display: none;
+    }
+
+    .history-body {
+        padding: 12px 18px 20px;
+    }
+
+    .history-item,
+    .history-item.header {
+        grid-template-columns: 72px 1fr;
+        gap: 7px 12px;
+    }
+
+    .history-item.header {
+        display: none;
+    }
+
+    .history-item > div:nth-child(3),
+    .history-item > div:nth-child(4),
+    .history-item > div:nth-child(5) {
+        grid-column: 2;
+    }
 }
 </style>
 </head>
@@ -716,13 +957,13 @@ select:focus {
         <div class="brand-title">VICIdial IP Manager</div>
     </div>
 
-    <div class="topbar-note">
+    <button class="topbar-note" id="requestsBtn" type="button" aria-haspopup="dialog">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
             <path d="M9 5h6M9 9h6M8 3h8a2 2 0 0 1 2 2v14H6V5a2 2 0 0 1 2-2Z"/>
             <path d="M9 13h6"/>
         </svg>
         <span>Solicitudes de acceso</span>
-    </div>
+    </button>
 </header>
 
 <main class="page">
@@ -981,11 +1222,271 @@ select:focus {
 
 </main>
 
+<div class="history-modal" id="historyModal" aria-hidden="true">
+    <section class="history-card" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
+        <div class="history-head">
+            <div>
+                <h2 id="historyTitle">Mis solicitudes</h2>
+                <p>Solicitudes enviadas desde este navegador y su estado actual.</p>
+            </div>
+
+            <div class="history-actions">
+                <button class="refresh-btn" id="refreshHistoryBtn" type="button">Actualizar</button>
+                <button class="icon-btn" id="closeHistoryBtn" type="button" aria-label="Cerrar">✕</button>
+            </div>
+        </div>
+
+        <div class="history-body" id="historyBody">
+            <div class="history-empty">Cargando solicitudes...</div>
+        </div>
+    </section>
+</div>
+
 <script>
 const form = document.getElementById("requestForm");
 const button = document.getElementById("submitBtn");
 const message = document.getElementById("message");
 const defaultButtonText = "Solicitar acceso";
+const historyKey = "vicidial_ip_manager_requests_v1";
+const requestsBtn = document.getElementById("requestsBtn");
+const historyModal = document.getElementById("historyModal");
+const historyBody = document.getElementById("historyBody");
+const refreshHistoryBtn = document.getElementById("refreshHistoryBtn");
+const closeHistoryBtn = document.getElementById("closeHistoryBtn");
+const publicApiBase = "https://vicidial97.directo.com/ip-manager-public-api";
+
+
+function getStoredRequests() {
+    try {
+        const raw = localStorage.getItem(historyKey);
+        const data = raw ? JSON.parse(raw) : [];
+        return Array.isArray(data) ? data : [];
+    }
+    catch (error) {
+        return [];
+    }
+}
+
+
+function saveStoredRequests(items) {
+    localStorage.setItem(historyKey, JSON.stringify(items.slice(0, 50)));
+}
+
+
+function rememberRequest(item) {
+    const current = getStoredRequests().filter(function(row) {
+        return String(row.id) !== String(item.id);
+    });
+
+    current.unshift(item);
+    saveStoredRequests(current);
+}
+
+
+function statusLabel(status) {
+    const map = {
+        PENDING: "Pendiente",
+        APPLYING: "Aplicando",
+        ACTIVE: "Activa",
+        REVOKING: "Revocando",
+        REVOKED: "Revocada",
+        ERROR: "Error"
+    };
+
+    return map[status] || status || "Sin dato";
+}
+
+
+function statusClass(status) {
+    const value = String(status || "").toLowerCase();
+
+    if (value === "pending") return "status-pending";
+    if (value === "applying") return "status-applying";
+    if (value === "active") return "status-active";
+    if (value === "revoking") return "status-revoking";
+    if (value === "revoked") return "status-revoked";
+    if (value === "error") return "status-error";
+
+    return "status-unknown";
+}
+
+
+function escapeHtml(value) {
+    return String(value == null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+function formatLocalDate(value) {
+    if (!value) return "—";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return escapeHtml(value);
+    }
+
+    return date.toLocaleString("es-MX", {
+        dateStyle: "short",
+        timeStyle: "short"
+    });
+}
+
+
+async function fetchRequestStatus(item) {
+    try {
+        const response = await fetch(
+            publicApiBase + "/requests/" + encodeURIComponent(item.id),
+            {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                },
+                cache: "no-store"
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+        }
+
+        const data = await response.json();
+
+        return Object.assign({}, item, {
+            status: data.status || item.status,
+            ip: data.ip || item.ip,
+            node_name: data.node_name || item.node_name,
+            created_at: data.created_at || item.created_at
+        });
+    }
+    catch (error) {
+        return Object.assign({}, item, {
+            sync_error: true
+        });
+    }
+}
+
+
+function renderHistory(items) {
+    if (!items.length) {
+        historyBody.innerHTML =
+            '<div class="history-empty">' +
+            'Todavía no hay solicitudes enviadas desde este navegador.' +
+            '</div>' +
+            '<div class="history-note">' +
+            'Cuando envíes una solicitud desde esta página, su folio quedará guardado aquí para consultar su estado.' +
+            '</div>';
+        return;
+    }
+
+    let html =
+        '<div class="history-list">' +
+        '<div class="history-item header">' +
+        '<div>Folio</div>' +
+        '<div>IP</div>' +
+        '<div>Destino</div>' +
+        '<div>Estado</div>' +
+        '<div>Fecha</div>' +
+        '</div>';
+
+    items.forEach(function(item) {
+        const currentStatus = item.status || "UNKNOWN";
+        const displayStatus = item.sync_error
+            ? statusLabel(currentStatus) + " *"
+            : statusLabel(currentStatus);
+
+        html +=
+            '<div class="history-item">' +
+            '<div class="history-folio">#' + escapeHtml(item.id) + '</div>' +
+            '<div class="history-ip">' + escapeHtml(item.ip || "—") + '</div>' +
+            '<div class="history-dest">' + escapeHtml(item.destination || item.node_name || "—") + '</div>' +
+            '<div><span class="status-badge ' + statusClass(currentStatus) + '">' +
+            escapeHtml(displayStatus) +
+            '</span></div>' +
+            '<div class="history-date">' + formatLocalDate(item.created_at) + '</div>' +
+            '</div>';
+    });
+
+    html += '</div>';
+
+    if (items.some(function(item) { return item.sync_error; })) {
+        html +=
+            '<div class="history-note">' +
+            '* No fue posible actualizar uno o más estados en este momento; se muestra el último estado conocido.' +
+            '</div>';
+    }
+    else {
+        html +=
+            '<div class="history-note">' +
+            'Los estados se consultan al backend cada vez que abres o actualizas esta ventana.' +
+            '</div>';
+    }
+
+    historyBody.innerHTML = html;
+}
+
+
+async function loadHistory() {
+    const stored = getStoredRequests();
+
+    if (!stored.length) {
+        renderHistory([]);
+        return;
+    }
+
+    historyBody.innerHTML =
+        '<div class="history-empty">Consultando estados actuales...</div>';
+
+    const refreshed = await Promise.all(
+        stored.map(fetchRequestStatus)
+    );
+
+    saveStoredRequests(
+        refreshed.map(function(item) {
+            const copy = Object.assign({}, item);
+            delete copy.sync_error;
+            return copy;
+        })
+    );
+
+    renderHistory(refreshed);
+}
+
+
+function openHistory() {
+    historyModal.classList.add("open");
+    historyModal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    loadHistory();
+}
+
+
+function closeHistory() {
+    historyModal.classList.remove("open");
+    historyModal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+}
+
+
+requestsBtn.addEventListener("click", openHistory);
+refreshHistoryBtn.addEventListener("click", loadHistory);
+closeHistoryBtn.addEventListener("click", closeHistory);
+
+historyModal.addEventListener("click", function(event) {
+    if (event.target === historyModal) {
+        closeHistory();
+    }
+});
+
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape" && historyModal.classList.contains("open")) {
+        closeHistory();
+    }
+});
 
 
 function showMessage(type, text) {
@@ -1053,6 +1554,16 @@ form.addEventListener("submit", async function(event) {
             " | Estado: " +
             data.status
         );
+
+        rememberRequest({
+            id: data.id,
+            ip: data.ip || payload.ip,
+            requester: payload.requester,
+            node_name: payload.node_name,
+            destination: destination,
+            status: data.status || "PENDING",
+            created_at: data.created_at || new Date().toISOString()
+        });
 
         form.reset();
 
