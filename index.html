@@ -68,23 +68,26 @@
     }
 
     input,
-    textarea {
+    select {
         width: 100%;
         padding: 12px 13px;
         border: 1px solid #ccd2da;
         border-radius: 8px;
         font-size: 15px;
         outline: none;
+        background: white;
     }
 
     input:focus,
-    textarea:focus {
+    select:focus {
         border-color: #677487;
     }
 
-    textarea {
-        resize: vertical;
-        min-height: 80px;
+    .hint {
+        margin-top: 6px;
+        color: #6b7280;
+        font-size: 12px;
+        line-height: 1.4;
     }
 
     button {
@@ -123,10 +126,6 @@
         display: block;
         background: #fdeaea;
         border: 1px solid #e6b1b1;
-    }
-
-    .status {
-        font-weight: bold;
     }
 
     .footer {
@@ -176,12 +175,15 @@
                 </div>
 
                 <div class="field">
-                    <label for="reason">Motivo</label>
-                    <textarea
-                        id="reason"
-                        maxlength="250"
-                        placeholder="Ej. Acceso de agentes VICIdial"
-                    ></textarea>
+                    <label for="node_name">Centro / Destino</label>
+                    <select id="node_name" required>
+                        <option value="">Selecciona un destino</option>
+                        <option value="vicidial43">VICIDIAL 43</option>
+                        <option value="VicidialMED">VICIDIAL MED</option>
+                    </select>
+                    <div class="hint">
+                        Selecciona el servidor VICIdial al que se aplicará la autorización.
+                    </div>
                 </div>
 
                 <button id="submitBtn" type="submit">
@@ -225,10 +227,12 @@ form.addEventListener("submit", async function(event) {
     message.className = "message";
     message.textContent = "";
 
+    const nodeSelect = document.getElementById("node_name");
+
     const payload = {
         ip: document.getElementById("ip").value.trim(),
         requester: document.getElementById("requester").value.trim(),
-        reason: document.getElementById("reason").value.trim()
+        node_name: nodeSelect.value
     };
 
     try {
@@ -257,12 +261,17 @@ form.addEventListener("submit", async function(event) {
             throw new Error(detail);
         }
 
+        const destination =
+            nodeSelect.options[nodeSelect.selectedIndex].text;
+
         showMessage(
             "success",
             "Solicitud recibida. Folio #" +
             data.id +
             " | IP: " +
             data.ip +
+            " | Destino: " +
+            destination +
             " | Estado: " +
             data.status
         );
