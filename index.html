@@ -1042,6 +1042,7 @@ select:focus {
 
                         <select id="node_name" required>
                             <option value="">Selecciona un nodo</option>
+                            <option value="ALL_CENTERS">TODOS LOS CENTROS</option>
                             <option value="vicidial43">VICIDIAL 43</option>
                             <option value="VicidialMED">VICIDIAL MED</option>
                             <option value="ALIADOS">ALIADOS</option>
@@ -1053,7 +1054,7 @@ select:focus {
                     </div>
 
                     <div class="hint">
-                        Selecciona el destino VICIdial al que se aplicará la autorización.
+                        Selecciona un destino VICIdial o todos los centros disponibles.
                     </div>
                 </div>
 
@@ -1254,6 +1255,21 @@ const historyBody = document.getElementById("historyBody");
 const refreshHistoryBtn = document.getElementById("refreshHistoryBtn");
 const closeHistoryBtn = document.getElementById("closeHistoryBtn");
 const publicApiBase = "https://vicidial97.directo.com/ip-manager-public-api";
+
+const allCenters = [
+    {
+        node_name: "vicidial43",
+        destination: "VICIDIAL 43"
+    },
+    {
+        node_name: "VicidialMED",
+        destination: "VICIDIAL MED"
+    },
+    {
+        node_name: "ALIADOS",
+        destination: "ALIADOS"
+    }
+];
 
 
 function getStoredRequests() {
@@ -1496,6 +1512,51 @@ function showMessage(type, text) {
 }
 
 
+async function createPublicRequest(payload) {
+
+    const response = await fetch(
+        publicApiBase + "/requests",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        }
+    );
+
+    let data = {};
+
+    try {
+        data = await response.json();
+    }
+    catch (error) {
+        data = {};
+    }
+
+    if (!response.ok) {
+
+        let detail =
+            data.detail ||
+            "No fue posible crear la solicitud.";
+
+        if (typeof detail === "object") {
+            detail = JSON.stringify(detail);
+        }
+
+        const requestError =
+            new Error(detail);
+
+        requestError.status =
+            response.status;
+
+        throw requestError;
+    }
+
+    return data;
+}
+
+
 form.addEventListener("submit", async function(event) {
 
     event.preventDefault();
@@ -1506,66 +1567,195 @@ form.addEventListener("submit", async function(event) {
     message.className = "message";
     message.textContent = "";
 
-    const nodeSelect = document.getElementById("node_name");
+    const nodeSelect =
+        document.getElementById("node_name");
 
-    const payload = {
-        ip: document.getElementById("ip").value.trim(),
-        requester: document.getElementById("requester").value.trim(),
-        node_name: nodeSelect.value
-    };
+    const ip =
+        document.getElementById("ip").value.trim();
+
+    const requester =
+        document.getElementById("requester").value.trim();
+
+    const selectedNode =
+        nodeSelect.value;
+
+    const targets =
+        selectedNode === "ALL_CENTERS"
+            ? allCenters
+            : [
+                {
+                    node_name: selectedNode,
+                    destination:
+                        nodeSelect.options[
+                            nodeSelect.selectedIndex
+                        ].text
+                }
+            ];
 
     try {
 
-        const response = await fetch(
-            "https://vicidial97.directo.com/ip-manager-public-api/requests",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(payload)
+        const results = [];
+
+        for (const target of targets) {
+
+            const payload = {
+                ip: ip,
+                requester: requester,
+                node_name: target.node_name
+            };
+
+            try {
+
+                const data =
+                    await createPublicRequest(
+                        payload
+                    );
+
+                rememberRequest({
+                    id: data.id,
+                    ip: data.ip || payload.ip,
+                    requester: payload.requester,
+                    node_name: payload.node_name,
+                    destination: target.destination,
+                    status: data.status || "PENDING",
+                    created_at:
+                        data.created_at ||
+                        new Date().toISOString()
+                });
+
+                results.push({
+                    type: "created",
+                    destination: target.destination,
+                    id: data.id
+                });
+
             }
-        );
+            catch (error) {
 
-        const data = await response.json();
+                results.push({
+                    type:
+                        error.status === 409
+                            ? "duplicate"
+                            : "error",
+                    destination:
+                        target.destination,
+                    detail:
+                        error.message
+                });
 
-        if (!response.ok) {
-
-            let detail = data.detail || "No fue posible crear la solicitud.";
-
-            if (typeof detail === "object") {
-                detail = JSON.stringify(detail);
+                /*
+                 * Para una solicitud individual conservamos
+                 * el comportamiento anterior: mostramos el
+                 * error directamente.
+                 */
+                if (selectedNode !== "ALL_CENTERS") {
+                    throw error;
+                }
             }
-
-            throw new Error(detail);
         }
 
-        const destination =
-            nodeSelect.options[nodeSelect.selectedIndex].text;
 
-        showMessage(
-            "success",
-            "Solicitud recibida. Folio #" +
-            data.id +
-            " | IP: " +
-            data.ip +
-            " | Destino: " +
-            destination +
-            " | Estado: " +
-            data.status
-        );
+        if (selectedNode === "ALL_CENTERS") {
 
-        rememberRequest({
-            id: data.id,
-            ip: data.ip || payload.ip,
-            requester: payload.requester,
-            node_name: payload.node_name,
-            destination: destination,
-            status: data.status || "PENDING",
-            created_at: data.created_at || new Date().toISOString()
-        });
+            const created =
+                results.filter(
+                    function(row) {
+                        return row.type === "created";
+                    }
+                );
 
-        form.reset();
+            const duplicates =
+                results.filter(
+                    function(row) {
+                        return row.type === "duplicate";
+                    }
+                );
+
+            const errors =
+                results.filter(
+                    function(row) {
+                        return row.type === "error";
+                    }
+                );
+
+            const summary = [];
+
+            created.forEach(
+                function(row) {
+                    summary.push(
+                        row.destination +
+                        ": folio #" +
+                        row.id
+                    );
+                }
+            );
+
+            duplicates.forEach(
+                function(row) {
+                    summary.push(
+                        row.destination +
+                        ": ya existe"
+                    );
+                }
+            );
+
+            errors.forEach(
+                function(row) {
+                    summary.push(
+                        row.destination +
+                        ": error"
+                    );
+                }
+            );
+
+
+            if (errors.length > 0) {
+
+                showMessage(
+                    "error",
+                    "Solicitud procesada parcialmente. " +
+                    summary.join(" | ")
+                );
+
+            }
+            else {
+
+                showMessage(
+                    "success",
+                    "Todos los centros procesados. " +
+                    summary.join(" | ")
+                );
+            }
+
+
+            /*
+             * Si no hubo fallos técnicos, el objetivo quedó
+             * cubierto: cada centro recibió una solicitud nueva
+             * o ya tenía una vigente para esa IP.
+             */
+            if (errors.length === 0) {
+                form.reset();
+            }
+
+        }
+        else {
+
+            const created =
+                results[0];
+
+            showMessage(
+                "success",
+                "Solicitud recibida. Folio #" +
+                created.id +
+                " | IP: " +
+                ip +
+                " | Destino: " +
+                created.destination +
+                " | Estado: PENDING"
+            );
+
+            form.reset();
+        }
 
     }
     catch (error) {
@@ -1578,7 +1768,8 @@ form.addEventListener("submit", async function(event) {
     finally {
 
         button.disabled = false;
-        button.querySelector("span").textContent = defaultButtonText;
+        button.querySelector("span").textContent =
+            defaultButtonText;
     }
 
 });
