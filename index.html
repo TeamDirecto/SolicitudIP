@@ -1046,6 +1046,7 @@ select:focus {
                             <option value="vicidial43">VICIDIAL 43</option>
                             <option value="VicidialMED">VICIDIAL MED</option>
                             <option value="ALIADOS">ALIADOS</option>
+                            <option value="GENERADORES">GENERADORES</option>
                         </select>
 
                         <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke-width="1.8">
@@ -1268,6 +1269,10 @@ const allCenters = [
     {
         node_name: "ALIADOS",
         destination: "ALIADOS"
+    },
+    {
+        node_name: "GENERADORES",
+        destination: "GENERADORES"
     }
 ];
 
@@ -1643,11 +1648,6 @@ form.addEventListener("submit", async function(event) {
                         error.message
                 });
 
-                /*
-                 * Para una solicitud individual conservamos
-                 * el comportamiento anterior: mostramos el
-                 * error directamente.
-                 */
                 if (selectedNode !== "ALL_CENTERS") {
                     throw error;
                 }
@@ -1728,11 +1728,6 @@ form.addEventListener("submit", async function(event) {
             }
 
 
-            /*
-             * Si no hubo fallos técnicos, el objetivo quedó
-             * cubierto: cada centro recibió una solicitud nueva
-             * o ya tenía una vigente para esa IP.
-             */
             if (errors.length === 0) {
                 form.reset();
             }
