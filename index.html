@@ -3,24 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Solicitud de acceso VICIdial</title>
+<title>VICIdial IP Manager</title>
 
 <style>
 :root {
-    --bg: #f6f8fc;
-    --panel: #ffffff;
-    --text: #15213c;
-    --muted: #6f7c95;
-    --line: #dfe5ef;
+    --bg: #f7f9fd;
+    --panel: rgba(255,255,255,.96);
+    --text: #101d3e;
+    --muted: #6f7f9f;
+    --line: #dce4f1;
     --line-soft: #edf1f7;
     --blue: #2f6df6;
-    --blue-strong: #0f2c63;
+    --blue-dark: #102d65;
     --blue-soft: #eef4ff;
-    --green: #25a66a;
-    --green-soft: #eefaf4;
-    --danger: #c63f4f;
-    --danger-soft: #fff1f3;
-    --shadow: 0 18px 50px rgba(24, 44, 82, .08);
+    --green: #12a660;
+    --green-soft: #eaf9f1;
+    --amber: #f2a400;
+    --amber-soft: #fff6dc;
+    --red: #e54855;
+    --red-soft: #fff0f2;
+    --shadow: 0 20px 60px rgba(30, 55, 98, .08);
 }
 
 * {
@@ -35,36 +37,37 @@ body {
 
 body {
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background:
-        radial-gradient(circle at 0% 100%, rgba(47,109,246,.10) 0 120px, transparent 121px),
-        radial-gradient(circle at 100% 0%, rgba(47,109,246,.07) 0 180px, transparent 181px),
-        var(--bg);
     color: var(--text);
+    background:
+        radial-gradient(circle at -4% 22%, rgba(81,126,255,.09) 0 150px, transparent 151px),
+        radial-gradient(circle at 82% 28%, rgba(81,126,255,.09) 0 160px, transparent 161px),
+        linear-gradient(135deg, #fbfdff 0%, #f6f9ff 52%, #f9fbff 100%);
+}
+
+button,
+input,
+select {
+    font: inherit;
 }
 
 .topbar {
-    height: 84px;
+    height: 74px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 32px;
+    padding: 0 max(28px, calc((100vw - 1450px) / 2));
     background: rgba(255,255,255,.94);
     border-bottom: 1px solid var(--line-soft);
-    backdrop-filter: blur(12px);
-    position: sticky;
-    top: 0;
-    z-index: 5;
+    backdrop-filter: blur(16px);
 }
 
-.brand,
-.topbar-note {
+.brand {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
 }
 
 .brand-mark {
-    width: 38px;
+    width: 42px;
     height: 30px;
     position: relative;
 }
@@ -74,970 +77,524 @@ body {
     content: "";
     position: absolute;
     top: 3px;
-    width: 18px;
-    height: 24px;
-    background: linear-gradient(145deg, #2f6df6, #7fa5ff);
+    width: 20px;
+    height: 25px;
+    background: linear-gradient(145deg, #2f6df6, #83a8ff);
     clip-path: polygon(0 0, 100% 0, 52% 100%);
     border-radius: 4px;
 }
 
 .brand-mark::before {
-    left: 0;
+    left: 1px;
     transform: rotate(-6deg);
 }
 
 .brand-mark::after {
-    right: 0;
+    right: 1px;
     opacity: .72;
     transform: rotate(6deg);
 }
 
 .brand-title {
-    font-size: 18px;
-    font-weight: 800;
-    letter-spacing: -.01em;
-}
-
-.topbar-note {
-    color: #53617a;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.topbar-note svg {
-    width: 19px;
-    height: 19px;
-    stroke: #6f7c95;
-}
-
-button.topbar-note {
-    border: 0;
-    background: transparent;
-    font: inherit;
-    cursor: pointer;
-    padding: 10px 12px;
-    border-radius: 10px;
-    transition: background .16s ease, color .16s ease;
-}
-
-button.topbar-note:hover {
-    background: var(--blue-soft);
-    color: var(--blue-strong);
-}
-
-.history-modal {
-    position: fixed;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    background: rgba(15, 28, 52, .34);
-    backdrop-filter: blur(4px);
-    z-index: 50;
-}
-
-.history-modal.open {
-    display: flex;
-}
-
-.history-card {
-    width: min(940px, 100%);
-    max-height: min(760px, calc(100vh - 48px));
-    overflow: hidden;
-    background: #fff;
-    border: 1px solid var(--line-soft);
-    border-radius: 20px;
-    box-shadow: 0 28px 80px rgba(15, 32, 65, .18);
-    display: flex;
-    flex-direction: column;
-}
-
-.history-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    padding: 24px 26px 18px;
-    border-bottom: 1px solid var(--line-soft);
-}
-
-.history-head h2 {
-    margin: 0 0 5px;
-    font-size: 22px;
-}
-
-.history-head p {
-    margin: 0;
-    color: var(--muted);
-    font-size: 13px;
-}
-
-.history-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.icon-btn,
-.refresh-btn {
-    border: 1px solid var(--line);
-    background: #fff;
-    color: #58667d;
-    font: inherit;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.icon-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: grid;
-    place-items: center;
-}
-
-.refresh-btn {
-    height: 40px;
-    border-radius: 10px;
-    padding: 0 14px;
-}
-
-.icon-btn:hover,
-.refresh-btn:hover {
-    background: #f7f9fd;
-}
-
-.history-body {
-    padding: 18px 26px 26px;
-    overflow: auto;
-}
-
-.history-empty {
-    padding: 48px 18px;
-    text-align: center;
-    color: var(--muted);
-    border: 1px dashed var(--line);
-    border-radius: 14px;
-    background: #fbfcff;
-}
-
-.history-list {
-    display: grid;
-    gap: 12px;
-}
-
-.history-item {
-    display: grid;
-    grid-template-columns: 86px minmax(140px, 1.15fr) minmax(130px, 1fr) 130px 170px;
-    gap: 14px;
-    align-items: center;
-    padding: 15px 16px;
-    border: 1px solid var(--line-soft);
-    border-radius: 14px;
-    background: #fff;
-}
-
-.history-item.header {
-    padding-top: 4px;
-    padding-bottom: 8px;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    color: #8995a9;
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-}
-
-.history-folio {
-    font-weight: 800;
-    color: var(--blue-strong);
-}
-
-.history-ip,
-.history-dest,
-.history-date {
-    color: #65728a;
-    font-size: 13px;
-}
-
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 92px;
-    min-height: 30px;
-    padding: 5px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: .01em;
-}
-
-.status-pending {
-    color: #856914;
-    background: #fff7d7;
-}
-
-.status-applying,
-.status-revoking {
-    color: #245cb8;
-    background: #eaf2ff;
-}
-
-.status-active {
-    color: #17734b;
-    background: #eaf8f1;
-}
-
-.status-revoked {
-    color: #65728a;
-    background: #f0f3f7;
-}
-
-.status-error {
-    color: #a53443;
-    background: #fff0f2;
-}
-
-.status-unknown {
-    color: #65728a;
-    background: #f2f4f8;
-}
-
-.history-note {
-    margin-top: 16px;
-    color: #8a96aa;
-    font-size: 12px;
-    line-height: 1.5;
+    font-size: 21px;
+    font-weight: 850;
+    letter-spacing: -.025em;
 }
 
 .page {
-    width: min(1320px, calc(100% - 40px));
+    width: min(1450px, calc(100% - 42px));
     margin: 0 auto;
-    padding: 68px 0 46px;
+    padding: 92px 0 70px;
 }
 
 .workspace {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.06fr);
-    gap: 54px;
-    align-items: center;
+    grid-template-columns: minmax(380px, .92fr) minmax(620px, 1.08fr);
+    gap: 18px;
+    align-items: stretch;
 }
 
-.request-card,
-.visual-panel {
-    background: rgba(255,255,255,.92);
+.panel {
+    background: var(--panel);
     border: 1px solid var(--line-soft);
     border-radius: 20px;
     box-shadow: var(--shadow);
 }
 
 .request-card {
-    padding: 40px 42px 34px;
+    padding: 28px 32px 30px;
 }
 
-.card-head {
+.status-card {
+    padding: 28px 30px 24px;
+    min-width: 0;
+}
+
+.panel-head {
     display: flex;
-    align-items: flex-start;
-    gap: 18px;
-    margin-bottom: 32px;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
 }
 
-.card-icon {
-    width: 64px;
-    height: 64px;
-    flex: 0 0 64px;
-    border-radius: 16px;
+.panel-icon {
+    width: 58px;
+    height: 58px;
+    flex: 0 0 58px;
+    border-radius: 15px;
     display: grid;
     place-items: center;
-    background: linear-gradient(145deg, #f2f6ff, #e8efff);
+    background: linear-gradient(145deg, #f2f6ff, #e7efff);
 }
 
-.card-icon svg {
-    width: 31px;
-    height: 31px;
+.panel-icon svg {
+    width: 29px;
+    height: 29px;
+    fill: none;
     stroke: var(--blue);
+    stroke-width: 1.8;
 }
 
-.card-head h1 {
-    margin: 2px 0 8px;
-    font-size: clamp(28px, 2.4vw, 38px);
-    line-height: 1.08;
+.panel-head h1,
+.panel-head h2 {
+    margin: 0 0 5px;
+    font-size: 27px;
+    line-height: 1.1;
     letter-spacing: -.035em;
 }
 
-.card-head p {
+.panel-head p {
     margin: 0;
-    max-width: 480px;
     color: var(--muted);
-    line-height: 1.55;
     font-size: 14px;
+    line-height: 1.45;
 }
 
 .field {
-    margin-bottom: 20px;
+    margin-bottom: 18px;
 }
 
 label {
     display: block;
     margin-bottom: 8px;
     font-size: 14px;
-    font-weight: 750;
+    font-weight: 800;
 }
 
 .input-shell {
     position: relative;
 }
 
-.input-icon {
+.input-icon,
+.select-arrow {
     position: absolute;
-    left: 16px;
     top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    fill: none;
+    stroke: #6e83ab;
+    stroke-width: 1.8;
+}
+
+.input-icon {
+    left: 16px;
     width: 20px;
     height: 20px;
-    transform: translateY(-50%);
-    stroke: #8190aa;
-    pointer-events: none;
+}
+
+.select-arrow {
+    right: 16px;
+    width: 17px;
+    height: 17px;
 }
 
 input,
 select {
     width: 100%;
-    height: 54px;
-    border: 1px solid var(--line);
-    border-radius: 11px;
-    padding: 0 16px 0 48px;
+    height: 50px;
+    border: 1px solid #cfd9e9;
+    border-radius: 10px;
     background: #fff;
     color: var(--text);
-    font: inherit;
-    font-size: 15px;
+    padding: 0 44px 0 48px;
     outline: none;
-    transition: border-color .18s ease, box-shadow .18s ease;
+    transition: border-color .16s ease, box-shadow .16s ease;
 }
 
 select {
     appearance: none;
-    padding-right: 44px;
     cursor: pointer;
 }
 
-.select-arrow {
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    width: 18px;
-    height: 18px;
-    transform: translateY(-50%);
-    stroke: #8190aa;
-    pointer-events: none;
-}
-
 input::placeholder {
-    color: #a0abc0;
+    color: #93a2bb;
 }
 
 input:focus,
 select:focus {
-    border-color: #8db0ff;
-    box-shadow: 0 0 0 4px rgba(47,109,246,.09);
-}
-
-.hint {
-    margin-top: 8px;
-    color: #8a96aa;
-    font-size: 12px;
-    line-height: 1.45;
+    border-color: #7ea3ff;
+    box-shadow: 0 0 0 4px rgba(47,109,246,.08);
 }
 
 #submitBtn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    min-width: 205px;
-    height: 54px;
-    margin-top: 4px;
+    width: 100%;
+    height: 62px;
     border: 0;
     border-radius: 11px;
-    padding: 0 22px;
-    background: var(--blue-strong);
+    margin-top: 4px;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
     color: #fff;
-    font: inherit;
-    font-weight: 800;
+    background: linear-gradient(100deg, #12316d, #0d275c);
+    box-shadow: 0 12px 24px rgba(13,39,92,.18);
+    font-weight: 850;
     cursor: pointer;
-    box-shadow: 0 10px 22px rgba(15,44,99,.16);
-    transition: transform .16s ease, opacity .16s ease, box-shadow .16s ease;
+    transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease;
 }
 
 #submitBtn:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 13px 26px rgba(15,44,99,.20);
+    box-shadow: 0 15px 28px rgba(13,39,92,.22);
 }
 
 #submitBtn:disabled {
+    opacity: .6;
     cursor: not-allowed;
-    opacity: .62;
 }
 
 #submitBtn svg {
-    width: 18px;
-    height: 18px;
+    width: 21px;
+    height: 21px;
+    fill: none;
     stroke: currentColor;
+    stroke-width: 1.8;
+}
+
+.submit-arrow {
+    margin-left: auto;
 }
 
 .message {
     display: none;
-    margin-top: 20px;
-    padding: 14px 16px;
-    border-radius: 11px;
-    font-size: 14px;
-    line-height: 1.5;
+    margin-top: 15px;
+    padding: 13px 15px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.45;
 }
 
 .message.success {
     display: block;
+    color: #167249;
     background: var(--green-soft);
-    border: 1px solid #bfe8d1;
-    color: #1f714d;
+    border: 1px solid #bfe7d0;
 }
 
 .message.error {
     display: block;
-    background: var(--danger-soft);
-    border: 1px solid #efc2c8;
-    color: #9b2f3d;
+    color: #a13242;
+    background: var(--red-soft);
+    border: 1px solid #efc3c8;
 }
 
-.request-note {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    margin-top: 22px;
-    color: #7a879d;
-    font-size: 12px;
-}
-
-.request-note svg {
-    width: 17px;
-    height: 17px;
-    stroke: #6f7c95;
-}
-
-.visual-panel {
-    min-height: 566px;
-    padding: 26px;
-    position: relative;
-    overflow: hidden;
-}
-
-.visual-panel::before {
-    content: "";
-    position: absolute;
-    width: 210px;
-    height: 210px;
-    right: -90px;
-    top: -90px;
-    border-radius: 44px;
-    background: linear-gradient(145deg, rgba(47,109,246,.08), rgba(127,165,255,.03));
-    transform: rotate(24deg);
-}
-
-.visual-window {
-    height: 100%;
-    min-height: 514px;
-    border: 1px solid var(--line-soft);
-    border-radius: 17px;
-    background: rgba(255,255,255,.98);
-    overflow: hidden;
-    position: relative;
-}
-
-.mini-sidebar {
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 72px;
-    border-right: 1px solid var(--line-soft);
-    background: #fbfcff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    padding-top: 22px;
-}
-
-.mini-logo {
-    width: 28px;
-    height: 22px;
-    margin-bottom: 9px;
-    position: relative;
-}
-
-.mini-logo::before,
-.mini-logo::after {
-    content: "";
-    position: absolute;
-    top: 2px;
-    width: 13px;
-    height: 19px;
-    background: linear-gradient(145deg, #2f6df6, #88aaff);
-    clip-path: polygon(0 0, 100% 0, 52% 100%);
-}
-
-.mini-logo::before { left: 1px; }
-.mini-logo::after { right: 1px; opacity: .7; }
-
-.mini-nav {
-    width: 42px;
-    height: 42px;
-    border-radius: 11px;
-    display: grid;
-    place-items: center;
-    background: transparent;
-}
-
-.mini-nav.active {
-    background: var(--blue-soft);
-}
-
-.mini-nav svg {
-    width: 18px;
-    height: 18px;
-    stroke: #7c8ba4;
-}
-
-.mini-nav.active svg {
-    stroke: var(--blue);
-}
-
-.visual-content {
-    margin-left: 72px;
-    padding: 28px 24px 26px;
-}
-
-.flow-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 18px;
-}
-
-.flow-title h2 {
-    margin: 0;
-    font-size: 17px;
-}
-
-.flow-title span {
-    color: #8a96aa;
-    font-size: 12px;
-}
-
-.status-grid {
+.summary-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
-    margin-bottom: 18px;
+    margin-bottom: 20px;
 }
 
-.status-card {
-    min-height: 98px;
-    padding: 16px;
-    border: 1px solid var(--line-soft);
-    border-radius: 13px;
-    background: #fff;
-}
-
-.status-card .eyebrow {
-    color: #8793a7;
-    font-size: 11px;
-    font-weight: 700;
-    margin-bottom: 10px;
-}
-
-.status-card strong {
-    display: block;
-    color: var(--text);
-    font-size: 15px;
-    margin-bottom: 8px;
-}
-
-.spark {
-    width: 100%;
-    height: 22px;
-}
-
-.spark polyline {
-    fill: none;
-    stroke: var(--blue);
-    stroke-width: 2;
-}
-
-.status-card:nth-child(2) .spark polyline {
-    stroke: #6f8eff;
-}
-
-.status-card:nth-child(3) .spark polyline {
-    stroke: var(--green);
-}
-
-.process-card {
-    border: 1px solid var(--line-soft);
-    border-radius: 15px;
-    padding: 18px;
-    background: linear-gradient(180deg, #fff, #fbfdff);
-}
-
-.process-card h3 {
-    margin: 0 0 4px;
-    font-size: 14px;
-}
-
-.process-card > p {
-    margin: 0 0 22px;
-    color: #8995a9;
-    font-size: 12px;
-}
-
-.steps {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 28px;
-    align-items: start;
-    position: relative;
-}
-
-.steps::before {
-    content: "";
-    position: absolute;
-    left: 14%;
-    right: 14%;
-    top: 31px;
-    border-top: 2px dashed #c7d6fb;
-}
-
-.step {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-}
-
-.step-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 11px;
-    display: grid;
-    place-items: center;
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    box-shadow: 0 8px 20px rgba(31,60,112,.06);
-}
-
-.step-icon svg {
-    width: 28px;
-    height: 28px;
-    stroke: #7586a5;
-}
-
-.step:nth-child(2) .step-icon {
-    background: var(--blue-soft);
-}
-
-.step:nth-child(2) .step-icon svg {
-    stroke: var(--blue);
-}
-
-.step:nth-child(3) .step-icon {
-    background: var(--green-soft);
-    border-color: #d8f0e4;
-}
-
-.step:nth-child(3) .step-icon svg {
-    stroke: var(--green);
-}
-
-.step strong {
-    display: block;
-    font-size: 12px;
-    margin-bottom: 5px;
-}
-
-.step span {
-    color: #8a96aa;
-    font-size: 10px;
-    line-height: 1.4;
-}
-
-.destinations {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-top: 18px;
-}
-
-.destination {
-    border: 1px solid var(--line-soft);
+.summary-box {
+    min-height: 88px;
     border-radius: 12px;
-    padding: 11px 12px;
+    padding: 15px 18px;
+}
+
+.summary-box.review {
+    background: linear-gradient(135deg, #fff8e6, #fff4d7);
+}
+
+.summary-box.active {
+    background: linear-gradient(135deg, #eefcf5, #e5f9ef);
+}
+
+.summary-box.revoked {
+    background: linear-gradient(135deg, #fff3f4, #ffebee);
+}
+
+.summary-number {
+    font-size: 27px;
+    line-height: 1;
+    font-weight: 850;
+    margin-bottom: 9px;
+}
+
+.summary-label {
     display: flex;
     align-items: center;
-    gap: 9px;
-    color: #68758b;
-    font-size: 11px;
+    gap: 8px;
+    font-size: 13px;
     font-weight: 700;
-    background: #fff;
 }
 
 .dot {
-    width: 8px;
-    height: 8px;
-    flex: 0 0 8px;
+    width: 10px;
+    height: 10px;
+    flex: 0 0 10px;
     border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 0 4px rgba(37,166,106,.08);
 }
 
-.aliados-cluster {
+.review .dot { background: var(--amber); }
+.active .dot { background: var(--green); }
+.revoked .dot { background: var(--red); }
+
+.requests-wrap {
+    border-top: 1px solid var(--line);
+    padding-top: 14px;
+    overflow-x: auto;
+}
+
+.requests-table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.requests-table th {
+    padding: 10px 8px;
+    color: #485776;
+    font-size: 11px;
+    font-weight: 850;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.requests-table td {
+    padding: 13px 8px;
+    border-top: 1px solid var(--line-soft);
+    color: #32415e;
+    font-size: 12px;
+    vertical-align: middle;
+}
+
+.requests-table th:nth-child(1),
+.requests-table td:nth-child(1) { width: 70px; }
+
+.requests-table th:nth-child(2),
+.requests-table td:nth-child(2) { width: 132px; }
+
+.requests-table th:nth-child(3),
+.requests-table td:nth-child(3) { width: 120px; }
+
+.requests-table th:nth-child(4),
+.requests-table td:nth-child(4) { width: 138px; }
+
+.requests-table th:nth-child(5),
+.requests-table td:nth-child(5) { width: 140px; }
+
+.requests-table th:nth-child(6),
+.requests-table td:nth-child(6) { width: 118px; }
+
+.folio {
+    font-weight: 850;
+    color: var(--text);
+}
+
+.ip-value,
+.destination-value {
+    font-weight: 700;
+    color: #213152;
+}
+
+.status-pill {
     display: inline-flex;
     align-items: center;
-    gap: 3px;
-    margin-left: auto;
+    gap: 7px;
+    min-height: 29px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
 }
 
-.aliados-cluster i {
-    width: 4px;
-    height: 4px;
+.status-pill::before {
+    content: "";
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    background: #7f91b2;
+}
+
+.status-pending,
+.status-applying {
+    color: #9b6800;
+    background: var(--amber-soft);
+}
+.status-pending::before,
+.status-applying::before { background: var(--amber); }
+
+.status-active {
+    color: #187648;
+    background: var(--green-soft);
+}
+.status-active::before { background: var(--green); }
+
+.status-revoking {
+    color: #315fba;
+    background: #edf3ff;
+}
+.status-revoking::before { background: #4f7fe4; }
+
+.status-revoked,
+.status-error {
+    color: #aa3341;
+    background: var(--red-soft);
+}
+.status-revoked::before,
+.status-error::before { background: var(--red); }
+
+.status-unknown {
+    color: #67758c;
+    background: #f0f3f7;
+}
+.status-unknown::before { background: #8e9bb0; }
+
+.date-value {
+    color: #6f7f9f;
+    line-height: 1.35;
+}
+
+.empty-state {
+    padding: 44px 20px;
+    text-align: center;
+    color: var(--muted);
+    border-top: 1px solid var(--line-soft);
+    font-size: 13px;
+}
+
+.sync-note {
+    display: none;
+    margin-top: 12px;
+    color: #8a96aa;
+    font-size: 11px;
+}
+
+.sync-note.show {
     display: block;
 }
 
-.page-footer {
-    padding-top: 34px;
-    text-align: center;
-    color: #8995a9;
-    font-size: 12px;
-}
+@media (max-width: 1120px) {
+    .page {
+        padding-top: 54px;
+    }
 
-@media (max-width: 980px) {
     .workspace {
         grid-template-columns: 1fr;
-        gap: 28px;
-    }
-
-    .visual-panel {
-        min-height: auto;
-    }
-
-    .visual-window {
-        min-height: 470px;
     }
 }
 
 @media (max-width: 680px) {
     .topbar {
-        height: 72px;
+        height: 68px;
         padding: 0 18px;
     }
 
     .brand-title {
-        font-size: 16px;
+        font-size: 18px;
     }
 
-    .topbar-note span {
-        display: none;
+    .brand-mark {
+        width: 36px;
     }
 
     .page {
-        width: min(100% - 24px, 1320px);
-        padding-top: 26px;
+        width: min(100% - 22px, 1450px);
+        padding: 30px 0 38px;
     }
 
-    .request-card {
-        padding: 28px 22px 24px;
+    .request-card,
+    .status-card {
+        padding: 22px 18px;
     }
 
-    .card-head {
-        gap: 13px;
+    .panel-icon {
+        width: 50px;
+        height: 50px;
+        flex-basis: 50px;
     }
 
-    .card-icon {
-        width: 52px;
-        height: 52px;
-        flex-basis: 52px;
+    .panel-head h1,
+    .panel-head h2 {
+        font-size: 23px;
     }
 
-    .card-head h1 {
-        font-size: 26px;
-    }
-
-    #submitBtn {
-        width: 100%;
-    }
-
-    .visual-panel {
-        padding: 14px;
-    }
-
-    .mini-sidebar {
-        display: none;
-    }
-
-    .visual-content {
-        margin-left: 0;
-        padding: 20px 16px;
-    }
-
-    .status-grid,
-    .destinations {
+    .summary-grid {
         grid-template-columns: 1fr;
-    }
-
-    .steps {
-        gap: 10px;
-    }
-
-    .steps::before {
-        display: none;
-    }
-
-    .step-icon {
-        width: 54px;
-        height: 54px;
-    }
-
-    .history-modal {
-        padding: 10px;
-    }
-
-    .history-head {
-        align-items: flex-start;
-        padding: 18px;
-    }
-
-    .history-head p {
-        max-width: 220px;
-    }
-
-    .refresh-btn {
-        display: none;
-    }
-
-    .history-body {
-        padding: 12px 18px 20px;
-    }
-
-    .history-item,
-    .history-item.header {
-        grid-template-columns: 72px 1fr;
-        gap: 7px 12px;
-    }
-
-    .history-item.header {
-        display: none;
-    }
-
-    .history-item > div:nth-child(3),
-    .history-item > div:nth-child(4),
-    .history-item > div:nth-child(5) {
-        grid-column: 2;
     }
 }
 </style>
 </head>
 
 <body>
-
 <header class="topbar">
     <div class="brand">
         <div class="brand-mark" aria-hidden="true"></div>
         <div class="brand-title">VICIdial IP Manager</div>
     </div>
-
-    <button class="topbar-note" id="requestsBtn" type="button" aria-haspopup="dialog">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
-            <path d="M9 5h6M9 9h6M8 3h8a2 2 0 0 1 2 2v14H6V5a2 2 0 0 1 2-2Z"/>
-            <path d="M9 13h6"/>
-        </svg>
-        <span>Solicitudes de acceso</span>
-    </button>
 </header>
 
 <main class="page">
-
     <section class="workspace">
 
-        <article class="request-card">
-
-            <div class="card-head">
-                <div class="card-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                        <circle cx="9" cy="7" r="4"/>
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+        <article class="panel request-card">
+            <div class="panel-head">
+                <div class="panel-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M2 21a7 7 0 0 1 14 0"></path>
+                        <path d="M18 8v6M15 11h6"></path>
                     </svg>
                 </div>
-
                 <div>
                     <h1>Solicitar acceso</h1>
-                    <p>
-                        Completa el formulario para solicitar acceso a VICIdial
-                        desde tu dirección IP pública.
-                    </p>
+                    <p>Completa el formulario para solicitar acceso a VICIdial.</p>
                 </div>
             </div>
 
             <form id="requestForm">
-
                 <div class="field">
                     <label for="ip">Dirección IP pública</label>
                     <div class="input-shell">
-                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.7">
-                            <circle cx="12" cy="12" r="9"/>
-                            <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/>
+                        <svg class="input-icon" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"></path>
                         </svg>
-
-                        <input
-                            id="ip"
-                            type="text"
-                            maxlength="45"
-                            placeholder="Ej. 189.203.10.25"
-                            autocomplete="off"
-                            required
-                        >
+                        <input id="ip" type="text" maxlength="45" placeholder="Ej. 187.190.25.127" autocomplete="off" required>
                     </div>
                 </div>
 
                 <div class="field">
                     <label for="requester">Nombre / Cliente</label>
                     <div class="input-shell">
-                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.7">
-                            <circle cx="12" cy="8" r="4"/>
-                            <path d="M4 21a8 8 0 0 1 16 0"/>
+                        <svg class="input-icon" viewBox="0 0 24 24">
+                            <circle cx="12" cy="8" r="4"></circle>
+                            <path d="M4 21a8 8 0 0 1 16 0"></path>
                         </svg>
-
-                        <input
-                            id="requester"
-                            type="text"
-                            maxlength="80"
-                            placeholder="Ej. Mi empresa S.A."
-                            autocomplete="organization"
-                            required
-                        >
+                        <input id="requester" type="text" maxlength="80" placeholder="Ej. Aliados" autocomplete="organization" required>
                     </div>
                 </div>
 
                 <div class="field">
                     <label for="node_name">Nodo destino</label>
-
                     <div class="input-shell">
-                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.7">
-                            <rect x="4" y="4" width="16" height="6" rx="2"/>
-                            <rect x="4" y="14" width="16" height="6" rx="2"/>
-                            <path d="M8 7h.01M8 17h.01"/>
+                        <svg class="input-icon" viewBox="0 0 24 24">
+                            <rect x="4" y="4" width="16" height="6" rx="2"></rect>
+                            <rect x="4" y="14" width="16" height="6" rx="2"></rect>
+                            <path d="M8 7h.01M8 17h.01"></path>
                         </svg>
 
                         <select id="node_name" required>
@@ -1049,233 +606,106 @@ select:focus {
                             <option value="GENERADORES">GENERADORES</option>
                         </select>
 
-                        <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke-width="1.8">
-                            <path d="m7 10 5 5 5-5"/>
+                        <svg class="select-arrow" viewBox="0 0 24 24">
+                            <path d="m7 10 5 5 5-5"></path>
                         </svg>
-                    </div>
-
-                    <div class="hint">
-                        Selecciona un destino VICIdial o todos los centros disponibles.
                     </div>
                 </div>
 
                 <button id="submitBtn" type="submit">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
-                        <path d="m9 12 2 2 4-4"/>
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>
+                        <path d="m9 12 2 2 4-4"></path>
                     </svg>
                     <span>Solicitar acceso</span>
+                    <svg class="submit-arrow" viewBox="0 0 24 24">
+                        <path d="m9 18 6-6-6-6"></path>
+                    </svg>
                 </button>
-
             </form>
 
             <div id="message" class="message"></div>
-
-            <div class="request-note">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
-                </svg>
-                La solicitud deberá ser autorizada por un administrador.
-            </div>
-
         </article>
 
-        <aside class="visual-panel" aria-label="Flujo de autorización">
-
-            <div class="visual-window">
-
-                <div class="mini-sidebar">
-                    <div class="mini-logo"></div>
-
-                    <div class="mini-nav active">
-                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
-                            <path d="m3 11 9-8 9 8"/>
-                            <path d="M5 10v10h14V10M9 20v-6h6v6"/>
-                        </svg>
-                    </div>
-
-                    <div class="mini-nav">
-                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
-                            <rect x="4" y="4" width="16" height="6" rx="2"/>
-                            <rect x="4" y="14" width="16" height="6" rx="2"/>
-                        </svg>
-                    </div>
-
-                    <div class="mini-nav">
-                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
-                            <path d="m9 12 2 2 4-4"/>
-                        </svg>
-                    </div>
+        <article class="panel status-card">
+            <div class="panel-head">
+                <div class="panel-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <path d="M12 7v5l3 2"></path>
+                    </svg>
                 </div>
-
-                <div class="visual-content">
-
-                    <div class="flow-title">
-                        <h2>Flujo de autorización</h2>
-                        <span>Proceso administrado</span>
-                    </div>
-
-                    <div class="status-grid">
-
-                        <div class="status-card">
-                            <div class="eyebrow">Paso 1</div>
-                            <strong>Solicitud</strong>
-                            <svg class="spark" viewBox="0 0 120 24" preserveAspectRatio="none">
-                                <polyline points="0,18 18,16 36,19 54,10 72,13 90,6 120,9"/>
-                            </svg>
-                        </div>
-
-                        <div class="status-card">
-                            <div class="eyebrow">Paso 2</div>
-                            <strong>En revisión</strong>
-                            <svg class="spark" viewBox="0 0 120 24" preserveAspectRatio="none">
-                                <polyline points="0,19 18,15 36,17 54,11 72,12 90,5 120,8"/>
-                            </svg>
-                        </div>
-
-                        <div class="status-card">
-                            <div class="eyebrow">Paso 3</div>
-                            <strong>Aprobación</strong>
-                            <svg class="spark" viewBox="0 0 120 24" preserveAspectRatio="none">
-                                <polyline points="0,18 20,16 40,13 60,14 80,8 100,7 120,4"/>
-                            </svg>
-                        </div>
-
-                    </div>
-
-                    <div class="process-card">
-                        <h3>Estado de una solicitud</h3>
-                        <p>Tu IP avanza por un flujo controlado antes de aplicarse al destino.</p>
-
-                        <div class="steps">
-
-                            <div class="step">
-                                <div class="step-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">
-                                        <circle cx="12" cy="12" r="9"/>
-                                        <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/>
-                                    </svg>
-                                </div>
-                                <strong>IP pública</strong>
-                                <span>Registro</span>
-                            </div>
-
-                            <div class="step">
-                                <div class="step-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">
-                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
-                                        <path d="M12 8v4M12 16h.01"/>
-                                    </svg>
-                                </div>
-                                <strong>En revisión</strong>
-                                <span>Validación</span>
-                            </div>
-
-                            <div class="step">
-                                <div class="step-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
-                                        <circle cx="12" cy="12" r="9"/>
-                                        <path d="m8 12 2.5 2.5L16 9"/>
-                                    </svg>
-                                </div>
-                                <strong>Aprobada</strong>
-                                <span>Aplicación</span>
-                            </div>
-
-                        </div>
-
-                        <div class="destinations">
-
-                            <div class="destination">
-                                <span class="dot"></span>
-                                VICIDIAL 43
-                            </div>
-
-                            <div class="destination">
-                                <span class="dot"></span>
-                                VICIDIAL MED
-                            </div>
-
-                            <div class="destination">
-                                <span class="dot"></span>
-                                ALIADOS
-
-                                <span class="aliados-cluster" aria-hidden="true">
-                                    <i></i><i></i><i></i><i></i><i></i>
-                                </span>
-                            </div>
-
-                        </div>
-
-                    </div>
-
+                <div>
+                    <h2>Estado de solicitudes</h2>
+                    <p>Consulta el estado de tus solicitudes más recientes.</p>
                 </div>
-
             </div>
 
-        </aside>
+            <div class="summary-grid">
+                <div class="summary-box review">
+                    <div class="summary-number" id="reviewCount">0</div>
+                    <div class="summary-label"><span class="dot"></span>En revisión</div>
+                </div>
+                <div class="summary-box active">
+                    <div class="summary-number" id="activeCount">0</div>
+                    <div class="summary-label"><span class="dot"></span>Activas</div>
+                </div>
+                <div class="summary-box revoked">
+                    <div class="summary-number" id="revokedCount">0</div>
+                    <div class="summary-label"><span class="dot"></span>Revocadas</div>
+                </div>
+            </div>
+
+            <div class="requests-wrap">
+                <table class="requests-table" id="requestsTable" hidden>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Dirección IP</th>
+                            <th>Cliente</th>
+                            <th>Nodo destino</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requestsBody"></tbody>
+                </table>
+
+                <div class="empty-state" id="emptyState">
+                    Aún no hay solicitudes guardadas en este navegador.
+                </div>
+            </div>
+
+            <div class="sync-note" id="syncNote">
+                Algunos estados no pudieron actualizarse; se muestra el último estado conocido.
+            </div>
+        </article>
 
     </section>
-
-    <footer class="page-footer">
-        VICIdial IP Manager · Solicitudes de acceso administradas
-    </footer>
-
 </main>
-
-<div class="history-modal" id="historyModal" aria-hidden="true">
-    <section class="history-card" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
-        <div class="history-head">
-            <div>
-                <h2 id="historyTitle">Mis solicitudes</h2>
-                <p>Solicitudes enviadas desde este navegador y su estado actual.</p>
-            </div>
-
-            <div class="history-actions">
-                <button class="refresh-btn" id="refreshHistoryBtn" type="button">Actualizar</button>
-                <button class="icon-btn" id="closeHistoryBtn" type="button" aria-label="Cerrar">✕</button>
-            </div>
-        </div>
-
-        <div class="history-body" id="historyBody">
-            <div class="history-empty">Cargando solicitudes...</div>
-        </div>
-    </section>
-</div>
 
 <script>
 const form = document.getElementById("requestForm");
 const button = document.getElementById("submitBtn");
 const message = document.getElementById("message");
+const requestsTable = document.getElementById("requestsTable");
+const requestsBody = document.getElementById("requestsBody");
+const emptyState = document.getElementById("emptyState");
+const syncNote = document.getElementById("syncNote");
+const reviewCount = document.getElementById("reviewCount");
+const activeCount = document.getElementById("activeCount");
+const revokedCount = document.getElementById("revokedCount");
+
 const defaultButtonText = "Solicitar acceso";
 const historyKey = "vicidial_ip_manager_requests_v1";
-const requestsBtn = document.getElementById("requestsBtn");
-const historyModal = document.getElementById("historyModal");
-const historyBody = document.getElementById("historyBody");
-const refreshHistoryBtn = document.getElementById("refreshHistoryBtn");
-const closeHistoryBtn = document.getElementById("closeHistoryBtn");
 const publicApiBase = "https://vicidial97.directo.com/ip-manager-public-api";
 
 const allCenters = [
-    {
-        node_name: "vicidial43",
-        destination: "VICIDIAL 43"
-    },
-    {
-        node_name: "VicidialMED",
-        destination: "VICIDIAL MED"
-    },
-    {
-        node_name: "ALIADOS",
-        destination: "ALIADOS"
-    },
-    {
-        node_name: "GENERADORES",
-        destination: "GENERADORES"
-    }
+    { node_name: "vicidial43", destination: "VICIDIAL 43" },
+    { node_name: "VicidialMED", destination: "VICIDIAL MED" },
+    { node_name: "ALIADOS", destination: "ALIADOS" },
+    { node_name: "GENERADORES", destination: "GENERADORES" }
 ];
-
 
 function getStoredRequests() {
     try {
@@ -1288,11 +718,9 @@ function getStoredRequests() {
     }
 }
 
-
 function saveStoredRequests(items) {
     localStorage.setItem(historyKey, JSON.stringify(items.slice(0, 50)));
 }
-
 
 function rememberRequest(item) {
     const current = getStoredRequests().filter(function(row) {
@@ -1303,11 +731,19 @@ function rememberRequest(item) {
     saveStoredRequests(current);
 }
 
+function escapeHtml(value) {
+    return String(value == null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
 function statusLabel(status) {
     const map = {
         PENDING: "Pendiente",
-        APPLYING: "Aplicando",
+        APPLYING: "En revisión",
         ACTIVE: "Activa",
         REVOKING: "Revocando",
         REVOKED: "Revocada",
@@ -1316,7 +752,6 @@ function statusLabel(status) {
 
     return map[status] || status || "Sin dato";
 }
-
 
 function statusClass(status) {
     const value = String(status || "").toLowerCase();
@@ -1331,32 +766,34 @@ function statusClass(status) {
     return "status-unknown";
 }
 
-
-function escapeHtml(value) {
-    return String(value == null ? "" : value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-
 function formatLocalDate(value) {
     if (!value) return "—";
 
-    const date = new Date(value);
+    let normalized = String(value);
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(normalized)) {
+        normalized = normalized.replace(" ", "T");
+    }
+
+    const date = new Date(normalized);
 
     if (Number.isNaN(date.getTime())) {
         return escapeHtml(value);
     }
 
-    return date.toLocaleString("es-MX", {
-        dateStyle: "short",
-        timeStyle: "short"
+    const dateText = date.toLocaleDateString("es-MX", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
     });
-}
 
+    const timeText = date.toLocaleTimeString("es-MX", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+    });
+
+    return escapeHtml(dateText) + "<br>" + escapeHtml(timeText);
+}
 
 async function fetchRequestStatus(item) {
     try {
@@ -1364,9 +801,7 @@ async function fetchRequestStatus(item) {
             publicApiBase + "/requests/" + encodeURIComponent(item.id),
             {
                 method: "GET",
-                headers: {
-                    "Accept": "application/json"
-                },
+                headers: { "Accept": "application/json" },
                 cache: "no-store"
             }
         );
@@ -1381,90 +816,76 @@ async function fetchRequestStatus(item) {
             status: data.status || item.status,
             ip: data.ip || item.ip,
             node_name: data.node_name || item.node_name,
-            created_at: data.created_at || item.created_at
+            created_at: data.created_at || item.created_at,
+            sync_error: false
         });
     }
     catch (error) {
-        return Object.assign({}, item, {
-            sync_error: true
-        });
+        return Object.assign({}, item, { sync_error: true });
     }
 }
 
+function updateSummary(items) {
+    const review = items.filter(function(item) {
+        return item.status === "PENDING" || item.status === "APPLYING";
+    }).length;
 
-function renderHistory(items) {
+    const active = items.filter(function(item) {
+        return item.status === "ACTIVE";
+    }).length;
+
+    const revoked = items.filter(function(item) {
+        return item.status === "REVOKED";
+    }).length;
+
+    reviewCount.textContent = review;
+    activeCount.textContent = active;
+    revokedCount.textContent = revoked;
+}
+
+function renderRequests(items) {
+    updateSummary(items);
+
+    syncNote.classList.toggle(
+        "show",
+        items.some(function(item) { return item.sync_error; })
+    );
+
     if (!items.length) {
-        historyBody.innerHTML =
-            '<div class="history-empty">' +
-            'Todavía no hay solicitudes enviadas desde este navegador.' +
-            '</div>' +
-            '<div class="history-note">' +
-            'Cuando envíes una solicitud desde esta página, su folio quedará guardado aquí para consultar su estado.' +
-            '</div>';
+        requestsTable.hidden = true;
+        emptyState.hidden = false;
+        requestsBody.innerHTML = "";
         return;
     }
 
-    let html =
-        '<div class="history-list">' +
-        '<div class="history-item header">' +
-        '<div>Folio</div>' +
-        '<div>IP</div>' +
-        '<div>Destino</div>' +
-        '<div>Estado</div>' +
-        '<div>Fecha</div>' +
-        '</div>';
+    emptyState.hidden = true;
+    requestsTable.hidden = false;
 
-    items.forEach(function(item) {
-        const currentStatus = item.status || "UNKNOWN";
-        const displayStatus = item.sync_error
-            ? statusLabel(currentStatus) + " *"
-            : statusLabel(currentStatus);
+    requestsBody.innerHTML = items.slice(0, 8).map(function(item) {
+        const status = item.status || "UNKNOWN";
 
-        html +=
-            '<div class="history-item">' +
-            '<div class="history-folio">#' + escapeHtml(item.id) + '</div>' +
-            '<div class="history-ip">' + escapeHtml(item.ip || "—") + '</div>' +
-            '<div class="history-dest">' + escapeHtml(item.destination || item.node_name || "—") + '</div>' +
-            '<div><span class="status-badge ' + statusClass(currentStatus) + '">' +
-            escapeHtml(displayStatus) +
-            '</span></div>' +
-            '<div class="history-date">' + formatLocalDate(item.created_at) + '</div>' +
-            '</div>';
-    });
-
-    html += '</div>';
-
-    if (items.some(function(item) { return item.sync_error; })) {
-        html +=
-            '<div class="history-note">' +
-            '* No fue posible actualizar uno o más estados en este momento; se muestra el último estado conocido.' +
-            '</div>';
-    }
-    else {
-        html +=
-            '<div class="history-note">' +
-            'Los estados se consultan al backend cada vez que abres o actualizas esta ventana.' +
-            '</div>';
-    }
-
-    historyBody.innerHTML = html;
+        return (
+            "<tr>" +
+                '<td class="folio">#' + escapeHtml(item.id) + "</td>" +
+                '<td class="ip-value">' + escapeHtml(item.ip || "—") + "</td>" +
+                "<td>" + escapeHtml(item.requester || "—") + "</td>" +
+                '<td class="destination-value">' + escapeHtml(item.destination || item.node_name || "—") + "</td>" +
+                '<td><span class="status-pill ' + statusClass(status) + '">' + escapeHtml(statusLabel(status)) + "</span></td>" +
+                '<td class="date-value">' + formatLocalDate(item.created_at) + "</td>" +
+            "</tr>"
+        );
+    }).join("");
 }
 
-
-async function loadHistory() {
+async function refreshRequests() {
     const stored = getStoredRequests();
 
     if (!stored.length) {
-        renderHistory([]);
+        renderRequests([]);
         return;
     }
 
-    historyBody.innerHTML =
-        '<div class="history-empty">Consultando estados actuales...</div>';
-
-    const refreshed = await Promise.all(
-        stored.map(fetchRequestStatus)
-    );
+    const refreshed = await Promise.all(stored.map(fetchRequestStatus));
 
     saveStoredRequests(
         refreshed.map(function(item) {
@@ -1474,58 +895,20 @@ async function loadHistory() {
         })
     );
 
-    renderHistory(refreshed);
+    renderRequests(refreshed);
 }
-
-
-function openHistory() {
-    historyModal.classList.add("open");
-    historyModal.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-    loadHistory();
-}
-
-
-function closeHistory() {
-    historyModal.classList.remove("open");
-    historyModal.setAttribute("aria-hidden", "true");
-    document.body.style.overflow = "";
-}
-
-
-requestsBtn.addEventListener("click", openHistory);
-refreshHistoryBtn.addEventListener("click", loadHistory);
-closeHistoryBtn.addEventListener("click", closeHistory);
-
-historyModal.addEventListener("click", function(event) {
-    if (event.target === historyModal) {
-        closeHistory();
-    }
-});
-
-document.addEventListener("keydown", function(event) {
-    if (event.key === "Escape" && historyModal.classList.contains("open")) {
-        closeHistory();
-    }
-});
-
 
 function showMessage(type, text) {
-
     message.className = "message " + type;
     message.textContent = text;
 }
 
-
 async function createPublicRequest(payload) {
-
     const response = await fetch(
         publicApiBase + "/requests",
         {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         }
     );
@@ -1540,69 +923,44 @@ async function createPublicRequest(payload) {
     }
 
     if (!response.ok) {
-
-        let detail =
-            data.detail ||
-            "No fue posible crear la solicitud.";
+        let detail = data.detail || "No fue posible crear la solicitud.";
 
         if (typeof detail === "object") {
             detail = JSON.stringify(detail);
         }
 
-        const requestError =
-            new Error(detail);
-
-        requestError.status =
-            response.status;
-
+        const requestError = new Error(detail);
+        requestError.status = response.status;
         throw requestError;
     }
 
     return data;
 }
 
-
 form.addEventListener("submit", async function(event) {
-
     event.preventDefault();
 
     button.disabled = true;
     button.querySelector("span").textContent = "Enviando...";
-
     message.className = "message";
     message.textContent = "";
 
-    const nodeSelect =
-        document.getElementById("node_name");
+    const nodeSelect = document.getElementById("node_name");
+    const ip = document.getElementById("ip").value.trim();
+    const requester = document.getElementById("requester").value.trim();
+    const selectedNode = nodeSelect.value;
 
-    const ip =
-        document.getElementById("ip").value.trim();
-
-    const requester =
-        document.getElementById("requester").value.trim();
-
-    const selectedNode =
-        nodeSelect.value;
-
-    const targets =
-        selectedNode === "ALL_CENTERS"
-            ? allCenters
-            : [
-                {
-                    node_name: selectedNode,
-                    destination:
-                        nodeSelect.options[
-                            nodeSelect.selectedIndex
-                        ].text
-                }
-            ];
+    const targets = selectedNode === "ALL_CENTERS"
+        ? allCenters
+        : [{
+            node_name: selectedNode,
+            destination: nodeSelect.options[nodeSelect.selectedIndex].text
+        }];
 
     try {
-
         const results = [];
 
         for (const target of targets) {
-
             const payload = {
                 ip: ip,
                 requester: requester,
@@ -1610,11 +968,7 @@ form.addEventListener("submit", async function(event) {
             };
 
             try {
-
-                const data =
-                    await createPublicRequest(
-                        payload
-                    );
+                const data = await createPublicRequest(payload);
 
                 rememberRequest({
                     id: data.id,
@@ -1623,9 +977,7 @@ form.addEventListener("submit", async function(event) {
                     node_name: payload.node_name,
                     destination: target.destination,
                     status: data.status || "PENDING",
-                    created_at:
-                        data.created_at ||
-                        new Date().toISOString()
+                    created_at: data.created_at || new Date().toISOString()
                 });
 
                 results.push({
@@ -1633,19 +985,12 @@ form.addEventListener("submit", async function(event) {
                     destination: target.destination,
                     id: data.id
                 });
-
             }
             catch (error) {
-
                 results.push({
-                    type:
-                        error.status === 409
-                            ? "duplicate"
-                            : "error",
-                    destination:
-                        target.destination,
-                    detail:
-                        error.message
+                    type: error.status === 409 ? "duplicate" : "error",
+                    destination: target.destination,
+                    detail: error.message
                 });
 
                 if (selectedNode !== "ALL_CENTERS") {
@@ -1654,121 +999,67 @@ form.addEventListener("submit", async function(event) {
             }
         }
 
-
         if (selectedNode === "ALL_CENTERS") {
-
-            const created =
-                results.filter(
-                    function(row) {
-                        return row.type === "created";
-                    }
-                );
-
-            const duplicates =
-                results.filter(
-                    function(row) {
-                        return row.type === "duplicate";
-                    }
-                );
-
-            const errors =
-                results.filter(
-                    function(row) {
-                        return row.type === "error";
-                    }
-                );
-
+            const created = results.filter(function(row) { return row.type === "created"; });
+            const duplicates = results.filter(function(row) { return row.type === "duplicate"; });
+            const errors = results.filter(function(row) { return row.type === "error"; });
             const summary = [];
 
-            created.forEach(
-                function(row) {
-                    summary.push(
-                        row.destination +
-                        ": folio #" +
-                        row.id
-                    );
-                }
-            );
+            created.forEach(function(row) {
+                summary.push(row.destination + ": folio #" + row.id);
+            });
 
-            duplicates.forEach(
-                function(row) {
-                    summary.push(
-                        row.destination +
-                        ": ya existe"
-                    );
-                }
-            );
+            duplicates.forEach(function(row) {
+                summary.push(row.destination + ": ya existe");
+            });
 
-            errors.forEach(
-                function(row) {
-                    summary.push(
-                        row.destination +
-                        ": error"
-                    );
-                }
-            );
+            errors.forEach(function(row) {
+                summary.push(row.destination + ": error");
+            });
 
-
-            if (errors.length > 0) {
-
+            if (errors.length) {
                 showMessage(
                     "error",
-                    "Solicitud procesada parcialmente. " +
-                    summary.join(" | ")
+                    "Solicitud procesada parcialmente. " + summary.join(" | ")
                 );
-
             }
             else {
-
                 showMessage(
                     "success",
-                    "Todos los centros procesados. " +
-                    summary.join(" | ")
+                    "Todos los centros procesados. " + summary.join(" | ")
                 );
-            }
-
-
-            if (errors.length === 0) {
                 form.reset();
             }
-
         }
         else {
-
-            const created =
-                results[0];
+            const created = results[0];
 
             showMessage(
                 "success",
-                "Solicitud recibida. Folio #" +
-                created.id +
-                " | IP: " +
-                ip +
-                " | Destino: " +
-                created.destination +
+                "Solicitud recibida. Folio #" + created.id +
+                " | IP: " + ip +
+                " | Destino: " + created.destination +
                 " | Estado: PENDING"
             );
 
             form.reset();
         }
 
+        await refreshRequests();
     }
     catch (error) {
-
-        showMessage(
-            "error",
-            error.message
-        );
+        showMessage("error", error.message);
     }
     finally {
-
         button.disabled = false;
-        button.querySelector("span").textContent =
-            defaultButtonText;
+        button.querySelector("span").textContent = defaultButtonText;
     }
-
 });
-</script>
 
+renderRequests(getStoredRequests());
+refreshRequests();
+
+setInterval(refreshRequests, 30000);
+</script>
 </body>
 </html>
