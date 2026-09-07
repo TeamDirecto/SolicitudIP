@@ -22,18 +22,11 @@
     --amber-soft: #fff6dc;
     --red: #e54855;
     --red-soft: #fff0f2;
-    --shadow: 0 20px 60px rgba(30, 55, 98, .08);
+    --shadow: 0 20px 60px rgba(30,55,98,.08);
 }
 
-* {
-    box-sizing: border-box;
-}
-
-html,
-body {
-    margin: 0;
-    min-height: 100%;
-}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
 
 body {
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -44,16 +37,14 @@ body {
         linear-gradient(135deg, #fbfdff 0%, #f6f9ff 52%, #f9fbff 100%);
 }
 
-button,
-input,
-select {
-    font: inherit;
-}
+button, input, select { font: inherit; }
+[hidden] { display: none !important; }
 
 .topbar {
     height: 74px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 0 max(28px, calc((100vw - 1450px) / 2));
     background: rgba(255,255,255,.94);
     border-bottom: 1px solid var(--line-soft);
@@ -84,16 +75,8 @@ select {
     border-radius: 4px;
 }
 
-.brand-mark::before {
-    left: 1px;
-    transform: rotate(-6deg);
-}
-
-.brand-mark::after {
-    right: 1px;
-    opacity: .72;
-    transform: rotate(6deg);
-}
+.brand-mark::before { left: 1px; transform: rotate(-6deg); }
+.brand-mark::after { right: 1px; opacity: .72; transform: rotate(6deg); }
 
 .brand-title {
     font-size: 21px;
@@ -101,6 +84,191 @@ select {
     letter-spacing: -.025em;
 }
 
+.session-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #5e6f8d;
+    font-size: 13px;
+}
+
+.session-user {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--line-soft);
+    border-radius: 999px;
+    background: #fff;
+    font-weight: 750;
+}
+
+.session-user::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+}
+
+.logout-btn {
+    min-height: 36px;
+    border: 0;
+    background: transparent;
+    color: #667792;
+    font-weight: 750;
+    cursor: pointer;
+    padding: 0 8px;
+}
+
+.logout-btn:hover { color: var(--blue-dark); }
+
+/* LOGIN */
+.auth-page {
+    min-height: calc(100vh - 74px);
+    display: grid;
+    place-items: center;
+    padding: 46px 22px 70px;
+}
+
+.auth-card {
+    width: min(430px, 100%);
+    padding: 34px 34px 32px;
+    background: rgba(255,255,255,.97);
+    border: 1px solid var(--line-soft);
+    border-radius: 22px;
+    box-shadow: 0 26px 80px rgba(25,49,92,.12);
+}
+
+.auth-icon {
+    width: 62px;
+    height: 62px;
+    margin-bottom: 22px;
+    border-radius: 17px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(145deg, #f1f6ff, #e5eeff);
+}
+
+.auth-icon svg {
+    width: 30px;
+    height: 30px;
+    fill: none;
+    stroke: var(--blue);
+    stroke-width: 1.8;
+}
+
+.auth-card h1 {
+    margin: 0 0 7px;
+    font-size: 28px;
+    line-height: 1.1;
+    letter-spacing: -.035em;
+}
+
+.auth-card > p {
+    margin: 0 0 27px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.auth-field { margin-bottom: 18px; }
+.auth-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.auth-input-shell { position: relative; }
+.auth-input-shell svg {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    transform: translateY(-50%);
+    fill: none;
+    stroke: #7084a9;
+    stroke-width: 1.8;
+    pointer-events: none;
+}
+
+.auth-input-shell input {
+    width: 100%;
+    height: 52px;
+    border: 1px solid #cfd9e9;
+    border-radius: 10px;
+    background: #fff;
+    color: var(--text);
+    padding: 0 16px 0 48px;
+    outline: none;
+    transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+.auth-input-shell input:focus {
+    border-color: #7ea3ff;
+    box-shadow: 0 0 0 4px rgba(47,109,246,.08);
+}
+
+.login-btn {
+    width: 100%;
+    height: 56px;
+    margin-top: 3px;
+    border: 0;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    color: #fff;
+    background: linear-gradient(100deg, #12316d, #0d275c);
+    box-shadow: 0 12px 24px rgba(13,39,92,.18);
+    font-weight: 850;
+    cursor: pointer;
+}
+
+.login-btn:disabled { opacity: .62; cursor: not-allowed; }
+.login-btn svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+}
+
+.auth-message {
+    display: none;
+    margin-top: 15px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.auth-message.error {
+    display: block;
+    color: #a13242;
+    background: var(--red-soft);
+    border: 1px solid #efc3c8;
+}
+
+.auth-message.notice {
+    display: block;
+    color: #8a6500;
+    background: var(--amber-soft);
+    border: 1px solid #f2df9b;
+}
+
+.auth-note {
+    margin-top: 20px;
+    color: #8b98ad;
+    font-size: 11px;
+    text-align: center;
+}
+
+/* APP */
 .page {
     width: min(1450px, calc(100% - 42px));
     margin: 0 auto;
@@ -121,14 +289,8 @@ select {
     box-shadow: var(--shadow);
 }
 
-.request-card {
-    padding: 28px 32px 30px;
-}
-
-.status-card {
-    padding: 28px 30px 24px;
-    min-width: 0;
-}
+.request-card { padding: 28px 32px 30px; }
+.status-card { padding: 28px 30px 24px; min-width: 0; }
 
 .panel-head {
     display: flex;
@@ -170,10 +332,7 @@ select {
     line-height: 1.45;
 }
 
-.field {
-    margin-bottom: 18px;
-}
-
+.field { margin-bottom: 18px; }
 label {
     display: block;
     margin-bottom: 8px;
@@ -181,10 +340,7 @@ label {
     font-weight: 800;
 }
 
-.input-shell {
-    position: relative;
-}
-
+.input-shell { position: relative; }
 .input-icon,
 .select-arrow {
     position: absolute;
@@ -196,17 +352,8 @@ label {
     stroke-width: 1.8;
 }
 
-.input-icon {
-    left: 16px;
-    width: 20px;
-    height: 20px;
-}
-
-.select-arrow {
-    right: 16px;
-    width: 17px;
-    height: 17px;
-}
+.input-icon { left: 16px; width: 20px; height: 20px; }
+.select-arrow { right: 16px; width: 17px; height: 17px; }
 
 input,
 select {
@@ -221,15 +368,8 @@ select {
     transition: border-color .16s ease, box-shadow .16s ease;
 }
 
-select {
-    appearance: none;
-    cursor: pointer;
-}
-
-input::placeholder {
-    color: #93a2bb;
-}
-
+select { appearance: none; cursor: pointer; }
+input::placeholder { color: #93a2bb; }
 input:focus,
 select:focus {
     border-color: #7ea3ff;
@@ -260,11 +400,7 @@ select:focus {
     box-shadow: 0 15px 28px rgba(13,39,92,.22);
 }
 
-#submitBtn:disabled {
-    opacity: .6;
-    cursor: not-allowed;
-}
-
+#submitBtn:disabled { opacity: .6; cursor: not-allowed; }
 #submitBtn svg {
     width: 21px;
     height: 21px;
@@ -272,10 +408,7 @@ select:focus {
     stroke: currentColor;
     stroke-width: 1.8;
 }
-
-.submit-arrow {
-    margin-left: auto;
-}
+.submit-arrow { margin-left: auto; }
 
 .message {
     display: none;
@@ -313,17 +446,9 @@ select:focus {
     padding: 15px 18px;
 }
 
-.summary-box.review {
-    background: linear-gradient(135deg, #fff8e6, #fff4d7);
-}
-
-.summary-box.active {
-    background: linear-gradient(135deg, #eefcf5, #e5f9ef);
-}
-
-.summary-box.revoked {
-    background: linear-gradient(135deg, #fff3f4, #ffebee);
-}
+.summary-box.review { background: linear-gradient(135deg, #fff8e6, #fff4d7); }
+.summary-box.active { background: linear-gradient(135deg, #eefcf5, #e5f9ef); }
+.summary-box.revoked { background: linear-gradient(135deg, #fff3f4, #ffebee); }
 
 .summary-number {
     font-size: 27px;
@@ -346,7 +471,6 @@ select:focus {
     flex: 0 0 10px;
     border-radius: 50%;
 }
-
 .review .dot { background: var(--amber); }
 .active .dot { background: var(--green); }
 .revoked .dot { background: var(--red); }
@@ -381,34 +505,16 @@ select:focus {
     vertical-align: middle;
 }
 
-.requests-table th:nth-child(1),
-.requests-table td:nth-child(1) { width: 70px; }
+.requests-table th:nth-child(1), .requests-table td:nth-child(1) { width: 70px; }
+.requests-table th:nth-child(2), .requests-table td:nth-child(2) { width: 132px; }
+.requests-table th:nth-child(3), .requests-table td:nth-child(3) { width: 120px; }
+.requests-table th:nth-child(4), .requests-table td:nth-child(4) { width: 138px; }
+.requests-table th:nth-child(5), .requests-table td:nth-child(5) { width: 140px; }
+.requests-table th:nth-child(6), .requests-table td:nth-child(6) { width: 118px; }
 
-.requests-table th:nth-child(2),
-.requests-table td:nth-child(2) { width: 132px; }
-
-.requests-table th:nth-child(3),
-.requests-table td:nth-child(3) { width: 120px; }
-
-.requests-table th:nth-child(4),
-.requests-table td:nth-child(4) { width: 138px; }
-
-.requests-table th:nth-child(5),
-.requests-table td:nth-child(5) { width: 140px; }
-
-.requests-table th:nth-child(6),
-.requests-table td:nth-child(6) { width: 118px; }
-
-.folio {
-    font-weight: 850;
-    color: var(--text);
-}
-
+.folio { font-weight: 850; color: var(--text); }
 .ip-value,
-.destination-value {
-    font-weight: 700;
-    color: #213152;
-}
+.destination-value { font-weight: 700; color: #213152; }
 
 .status-pill {
     display: inline-flex;
@@ -430,43 +536,21 @@ select:focus {
 }
 
 .status-pending,
-.status-applying {
-    color: #9b6800;
-    background: var(--amber-soft);
-}
+.status-applying { color: #9b6800; background: var(--amber-soft); }
 .status-pending::before,
 .status-applying::before { background: var(--amber); }
-
-.status-active {
-    color: #187648;
-    background: var(--green-soft);
-}
+.status-active { color: #187648; background: var(--green-soft); }
 .status-active::before { background: var(--green); }
-
-.status-revoking {
-    color: #315fba;
-    background: #edf3ff;
-}
+.status-revoking { color: #315fba; background: #edf3ff; }
 .status-revoking::before { background: #4f7fe4; }
-
 .status-revoked,
-.status-error {
-    color: #aa3341;
-    background: var(--red-soft);
-}
+.status-error { color: #aa3341; background: var(--red-soft); }
 .status-revoked::before,
 .status-error::before { background: var(--red); }
-
-.status-unknown {
-    color: #67758c;
-    background: #f0f3f7;
-}
+.status-unknown { color: #67758c; background: #f0f3f7; }
 .status-unknown::before { background: #8e9bb0; }
 
-.date-value {
-    color: #6f7f9f;
-    line-height: 1.35;
-}
+.date-value { color: #6f7f9f; line-height: 1.35; }
 
 .empty-state {
     padding: 44px 20px;
@@ -482,59 +566,27 @@ select:focus {
     color: #8a96aa;
     font-size: 11px;
 }
-
-.sync-note.show {
-    display: block;
-}
+.sync-note.show { display: block; }
 
 @media (max-width: 1120px) {
-    .page {
-        padding-top: 54px;
-    }
-
-    .workspace {
-        grid-template-columns: 1fr;
-    }
+    .page { padding-top: 54px; }
+    .workspace { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 680px) {
-    .topbar {
-        height: 68px;
-        padding: 0 18px;
-    }
-
-    .brand-title {
-        font-size: 18px;
-    }
-
-    .brand-mark {
-        width: 36px;
-    }
-
-    .page {
-        width: min(100% - 22px, 1450px);
-        padding: 30px 0 38px;
-    }
-
+    .topbar { height: 68px; padding: 0 18px; }
+    .brand-title { font-size: 18px; }
+    .brand-mark { width: 36px; }
+    .session-user { display: none; }
+    .auth-page { min-height: calc(100vh - 68px); padding: 28px 14px 48px; }
+    .auth-card { padding: 28px 22px 24px; }
+    .page { width: min(100% - 22px, 1450px); padding: 30px 0 38px; }
     .request-card,
-    .status-card {
-        padding: 22px 18px;
-    }
-
-    .panel-icon {
-        width: 50px;
-        height: 50px;
-        flex-basis: 50px;
-    }
-
+    .status-card { padding: 22px 18px; }
+    .panel-icon { width: 50px; height: 50px; flex-basis: 50px; }
     .panel-head h1,
-    .panel-head h2 {
-        font-size: 23px;
-    }
-
-    .summary-grid {
-        grid-template-columns: 1fr;
-    }
+    .panel-head h2 { font-size: 23px; }
+    .summary-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -545,11 +597,66 @@ select:focus {
         <div class="brand-mark" aria-hidden="true"></div>
         <div class="brand-title">VICIdial IP Manager</div>
     </div>
+
+    <div class="session-controls" id="sessionControls" hidden>
+        <span class="session-user" id="sessionUser">MED_REQ</span>
+        <button class="logout-btn" id="logoutBtn" type="button">Cerrar sesión</button>
+    </div>
 </header>
 
-<main class="page">
-    <section class="workspace">
+<section class="auth-page" id="authPage">
+    <article class="auth-card">
+        <div class="auth-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+                <rect x="5" y="10" width="14" height="11" rx="2"></rect>
+                <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+                <path d="M12 14v3"></path>
+            </svg>
+        </div>
 
+        <h1>Acceso al sistema</h1>
+        <p>Ingresa tus credenciales para gestionar solicitudes de acceso por IP.</p>
+
+        <form id="loginForm">
+            <div class="auth-field">
+                <label for="loginUsername">Usuario</label>
+                <div class="auth-input-shell">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="8" r="4"></circle>
+                        <path d="M4 21a8 8 0 0 1 16 0"></path>
+                    </svg>
+                    <input id="loginUsername" type="text" value="MED_REQ" autocomplete="username" maxlength="64" required>
+                </div>
+            </div>
+
+            <div class="auth-field">
+                <label for="loginPassword">Contraseña</label>
+                <div class="auth-input-shell">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="5" y="10" width="14" height="11" rx="2"></rect>
+                        <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+                    </svg>
+                    <input id="loginPassword" type="password" autocomplete="current-password" required>
+                </div>
+            </div>
+
+            <button class="login-btn" id="loginBtn" type="submit">
+                <svg viewBox="0 0 24 24">
+                    <path d="M10 17l5-5-5-5"></path>
+                    <path d="M15 12H3"></path>
+                    <path d="M13 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"></path>
+                </svg>
+                <span>Iniciar sesión</span>
+            </button>
+        </form>
+
+        <div class="auth-message" id="authMessage"></div>
+        <div class="auth-note">La sesión permanece activa durante 30 minutos.</div>
+    </article>
+</section>
+
+<main class="page" id="appPage" hidden>
+    <section class="workspace">
         <article class="panel request-card">
             <div class="panel-head">
                 <div class="panel-icon" aria-hidden="true">
@@ -680,11 +787,24 @@ select:focus {
                 Algunos estados no pudieron actualizarse; se muestra el último estado conocido.
             </div>
         </article>
-
     </section>
 </main>
 
 <script>
+const publicApiBase = "https://vicidial97.directo.com/ip-manager-public-api";
+const historyKey = "vicidial_ip_manager_requests_v1";
+
+const authPage = document.getElementById("authPage");
+const appPage = document.getElementById("appPage");
+const loginForm = document.getElementById("loginForm");
+const loginButton = document.getElementById("loginBtn");
+const loginUsername = document.getElementById("loginUsername");
+const loginPassword = document.getElementById("loginPassword");
+const authMessage = document.getElementById("authMessage");
+const sessionControls = document.getElementById("sessionControls");
+const sessionUser = document.getElementById("sessionUser");
+const logoutBtn = document.getElementById("logoutBtn");
+
 const form = document.getElementById("requestForm");
 const button = document.getElementById("submitBtn");
 const message = document.getElementById("message");
@@ -697,15 +817,182 @@ const activeCount = document.getElementById("activeCount");
 const revokedCount = document.getElementById("revokedCount");
 
 const defaultButtonText = "Solicitar acceso";
-const historyKey = "vicidial_ip_manager_requests_v1";
-const publicApiBase = "https://vicidial97.directo.com/ip-manager-public-api";
-
 const allCenters = [
     { node_name: "vicidial43", destination: "VICIDIAL 43" },
     { node_name: "VicidialMED", destination: "VICIDIAL MED" },
     { node_name: "ALIADOS", destination: "ALIADOS" },
     { node_name: "GENERADORES", destination: "GENERADORES" }
 ];
+
+let authToken = null;
+let authUser = null;
+let authExpiresAt = 0;
+let refreshTimer = null;
+let expiryTimer = null;
+let loggingOut = false;
+
+function showAuthMessage(type, text) {
+    authMessage.className = "auth-message " + type;
+    authMessage.textContent = text;
+}
+
+function clearAuthMessage() {
+    authMessage.className = "auth-message";
+    authMessage.textContent = "";
+}
+
+function startAuthenticatedView(username, token, expiresIn) {
+    authToken = token;
+    authUser = username;
+    authExpiresAt = Date.now() + (Number(expiresIn || 1800) * 1000);
+    loggingOut = false;
+
+    sessionUser.textContent = username;
+    sessionControls.hidden = false;
+    authPage.hidden = true;
+    appPage.hidden = false;
+
+    loginPassword.value = "";
+    clearAuthMessage();
+
+    renderRequests(getStoredRequests());
+    refreshRequests().catch(function(error) {
+        if (!error || !error.auth) {
+            console.error(error);
+        }
+    });
+
+    if (refreshTimer) clearInterval(refreshTimer);
+    refreshTimer = setInterval(function() {
+        refreshRequests().catch(function(error) {
+            if (!error || !error.auth) {
+                console.error(error);
+            }
+        });
+    }, 30000);
+
+    if (expiryTimer) clearTimeout(expiryTimer);
+    expiryTimer = setTimeout(function() {
+        logout("Tu sesión expiró. Ingresa nuevamente.", "notice");
+    }, Math.max(1000, authExpiresAt - Date.now() + 250));
+}
+
+function logout(text, type) {
+    if (loggingOut) return;
+    loggingOut = true;
+
+    authToken = null;
+    authUser = null;
+    authExpiresAt = 0;
+
+    if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
+    }
+
+    if (expiryTimer) {
+        clearTimeout(expiryTimer);
+        expiryTimer = null;
+    }
+
+    sessionControls.hidden = true;
+    appPage.hidden = true;
+    authPage.hidden = false;
+    message.className = "message";
+    message.textContent = "";
+
+    if (text) {
+        showAuthMessage(type || "notice", text);
+    }
+    else {
+        clearAuthMessage();
+    }
+
+    loginPassword.value = "";
+    setTimeout(function() {
+        loginPassword.focus();
+        loggingOut = false;
+    }, 0);
+}
+
+function authError(messageText) {
+    const error = new Error(messageText || "Sesión no válida.");
+    error.auth = true;
+    return error;
+}
+
+async function apiFetch(url, options) {
+    if (!authToken || Date.now() >= authExpiresAt) {
+        logout("Tu sesión expiró. Ingresa nuevamente.", "notice");
+        throw authError("Sesión expirada.");
+    }
+
+    const requestOptions = Object.assign({}, options || {});
+    requestOptions.headers = Object.assign({}, requestOptions.headers || {}, {
+        "Authorization": "Bearer " + authToken
+    });
+
+    const response = await fetch(url, requestOptions);
+
+    if (response.status === 401) {
+        logout("Tu sesión expiró o ya no es válida.", "notice");
+        throw authError("Sesión no válida.");
+    }
+
+    return response;
+}
+
+loginForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
+    clearAuthMessage();
+
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value;
+
+    loginButton.disabled = true;
+    loginButton.querySelector("span").textContent = "Ingresando...";
+
+    try {
+        const response = await fetch(publicApiBase + "/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: username, password: password }),
+            cache: "no-store"
+        });
+
+        let data = {};
+        try { data = await response.json(); }
+        catch (error) { data = {}; }
+
+        if (!response.ok) {
+            let detail = data.detail || "No fue posible iniciar sesión.";
+            if (typeof detail === "object") detail = JSON.stringify(detail);
+            throw new Error(detail);
+        }
+
+        if (!data.access_token) {
+            throw new Error("El servidor no devolvió un token de acceso.");
+        }
+
+        startAuthenticatedView(
+            data.username || username,
+            data.access_token,
+            data.expires_in || 1800
+        );
+    }
+    catch (error) {
+        showAuthMessage("error", error.message || "No fue posible iniciar sesión.");
+        loginPassword.select();
+    }
+    finally {
+        loginButton.disabled = false;
+        loginButton.querySelector("span").textContent = "Iniciar sesión";
+    }
+});
+
+logoutBtn.addEventListener("click", function() {
+    logout(null);
+});
 
 function getStoredRequests() {
     try {
@@ -726,7 +1013,6 @@ function rememberRequest(item) {
     const current = getStoredRequests().filter(function(row) {
         return String(row.id) !== String(item.id);
     });
-
     current.unshift(item);
     saveStoredRequests(current);
 }
@@ -749,20 +1035,17 @@ function statusLabel(status) {
         REVOKED: "Revocada",
         ERROR: "Error"
     };
-
     return map[status] || status || "Sin dato";
 }
 
 function statusClass(status) {
     const value = String(status || "").toLowerCase();
-
     if (value === "pending") return "status-pending";
     if (value === "applying") return "status-applying";
     if (value === "active") return "status-active";
     if (value === "revoking") return "status-revoking";
     if (value === "revoked") return "status-revoked";
     if (value === "error") return "status-error";
-
     return "status-unknown";
 }
 
@@ -775,10 +1058,7 @@ function formatLocalDate(value) {
     }
 
     const date = new Date(normalized);
-
-    if (Number.isNaN(date.getTime())) {
-        return escapeHtml(value);
-    }
+    if (Number.isNaN(date.getTime())) return escapeHtml(value);
 
     const dateText = date.toLocaleDateString("es-MX", {
         day: "2-digit",
@@ -797,7 +1077,7 @@ function formatLocalDate(value) {
 
 async function fetchRequestStatus(item) {
     try {
-        const response = await fetch(
+        const response = await apiFetch(
             publicApiBase + "/requests/" + encodeURIComponent(item.id),
             {
                 method: "GET",
@@ -821,26 +1101,23 @@ async function fetchRequestStatus(item) {
         });
     }
     catch (error) {
+        if (error && error.auth) throw error;
         return Object.assign({}, item, { sync_error: true });
     }
 }
 
 function updateSummary(items) {
-    const review = items.filter(function(item) {
+    reviewCount.textContent = items.filter(function(item) {
         return item.status === "PENDING" || item.status === "APPLYING";
     }).length;
 
-    const active = items.filter(function(item) {
+    activeCount.textContent = items.filter(function(item) {
         return item.status === "ACTIVE";
     }).length;
 
-    const revoked = items.filter(function(item) {
+    revokedCount.textContent = items.filter(function(item) {
         return item.status === "REVOKED";
     }).length;
-
-    reviewCount.textContent = review;
-    activeCount.textContent = active;
-    revokedCount.textContent = revoked;
 }
 
 function renderRequests(items) {
@@ -863,7 +1140,6 @@ function renderRequests(items) {
 
     requestsBody.innerHTML = items.slice(0, 8).map(function(item) {
         const status = item.status || "UNKNOWN";
-
         return (
             "<tr>" +
                 '<td class="folio">#' + escapeHtml(item.id) + "</td>" +
@@ -904,7 +1180,7 @@ function showMessage(type, text) {
 }
 
 async function createPublicRequest(payload) {
-    const response = await fetch(
+    const response = await apiFetch(
         publicApiBase + "/requests",
         {
             method: "POST",
@@ -914,20 +1190,12 @@ async function createPublicRequest(payload) {
     );
 
     let data = {};
-
-    try {
-        data = await response.json();
-    }
-    catch (error) {
-        data = {};
-    }
+    try { data = await response.json(); }
+    catch (error) { data = {}; }
 
     if (!response.ok) {
         let detail = data.detail || "No fue posible crear la solicitud.";
-
-        if (typeof detail === "object") {
-            detail = JSON.stringify(detail);
-        }
+        if (typeof detail === "object") detail = JSON.stringify(detail);
 
         const requestError = new Error(detail);
         requestError.status = response.status;
@@ -987,6 +1255,8 @@ form.addEventListener("submit", async function(event) {
                 });
             }
             catch (error) {
+                if (error && error.auth) throw error;
+
                 results.push({
                     type: error.status === 409 ? "duplicate" : "error",
                     destination: target.destination,
@@ -1018,16 +1288,10 @@ form.addEventListener("submit", async function(event) {
             });
 
             if (errors.length) {
-                showMessage(
-                    "error",
-                    "Solicitud procesada parcialmente. " + summary.join(" | ")
-                );
+                showMessage("error", "Solicitud procesada parcialmente. " + summary.join(" | "));
             }
             else {
-                showMessage(
-                    "success",
-                    "Todos los centros procesados. " + summary.join(" | ")
-                );
+                showMessage("success", "Todos los centros procesados. " + summary.join(" | "));
                 form.reset();
             }
         }
@@ -1048,7 +1312,9 @@ form.addEventListener("submit", async function(event) {
         await refreshRequests();
     }
     catch (error) {
-        showMessage("error", error.message);
+        if (!error || !error.auth) {
+            showMessage("error", error.message || "No fue posible procesar la solicitud.");
+        }
     }
     finally {
         button.disabled = false;
@@ -1056,10 +1322,8 @@ form.addEventListener("submit", async function(event) {
     }
 });
 
-renderRequests(getStoredRequests());
-refreshRequests();
-
-setInterval(refreshRequests, 30000);
+renderRequests([]);
+setTimeout(function() { loginPassword.focus(); }, 0);
 </script>
 </body>
 </html>
