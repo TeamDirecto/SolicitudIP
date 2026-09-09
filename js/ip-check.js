@@ -29,7 +29,7 @@
     if(locked){
       submitBtn.dataset.ivrBlocked="1";
       submitBtn.disabled=true;
-      submitBtn.title="La IP ya existe en el nodo seleccionado";
+      submitBtn.title="La IP ya existe en todo el destino seleccionado";
       if(span)span.textContent="IP ya registrada";
       return;
     }
@@ -155,7 +155,7 @@
       lastState={key:ip+"|"+target,allFound,partial,complete,specificNode,found,expected,missingInventory,stale,requestable,data:d};
 
       if(allFound){
-        if(specificNode)setIVRLock(true);
+        setIVRLock(true);
         paint("block","La IP ya existe en el IVR","Detectada en todos los nodos del destino. No es necesario generar otra solicitud.",d);
       }else if(!complete||d.result==="UNKNOWN"){
         setIVRLock(false);
