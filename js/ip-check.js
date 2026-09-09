@@ -258,6 +258,12 @@
 
     const selected=nodeSelect.value;
     const grouped=selected==="ALIADOS"||selected==="GENERADORES"||selected==="ALL_CENTERS";
+
+    if(grouped&&(!result||result.error||!result.complete)){
+      show("error","No se puede determinar con seguridad qué nodos faltan. La solicitud agrupada no fue enviada; espera a que el inventario vuelva a estar completo.");
+      return;
+    }
+
     if(result&&grouped&&result.complete&&result.partial){
       await submitMissingOnly(result);
       return;
