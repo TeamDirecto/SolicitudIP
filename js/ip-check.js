@@ -3,7 +3,8 @@
   const nodeSelect=document.getElementById("node_name");
   const box=document.getElementById("ipCheck");
   const requestForm=document.getElementById("requestForm");
-  if(!ipInput||!nodeSelect||!box||!requestForm)return;
+  const submitBtn=document.getElementById("submitBtn");
+  if(!ipInput||!nodeSelect||!box||!requestForm||!submitBtn)return;
 
   const nodeNames={
     vicidial43:"VICIDIAL 43",VicidialMED:"VICIDIAL MED",
@@ -19,10 +20,27 @@
     const p=String(v||"").trim().split(".");
     return p.length===4&&p.every(x=>/^\d+$/.test(x)&&Number(x)>=0&&Number(x)<=255);
   }
+  function setIVRLock(locked){
+    const span=submitBtn.querySelector("span");
+    if(locked){
+      submitBtn.dataset.ivrBlocked="1";
+      submitBtn.disabled=true;
+      submitBtn.title="La IP ya existe en el nodo seleccionado";
+      if(span)span.textContent="IP ya registrada";
+      return;
+    }
+    if(submitBtn.dataset.ivrBlocked==="1"){
+      submitBtn.dataset.ivrBlocked="0";
+      submitBtn.disabled=false;
+      submitBtn.removeAttribute("title");
+      if(span)span.textContent="Solicitar acceso";
+    }
+  }
   function clearBox(){
     box.className="ip-check";
     box.innerHTML="";
     lastState=null;
+    setIVRLock(false);
   }
   function paint(type,title,detail){
     box.className="ip-check show "+type;
@@ -37,6 +55,7 @@
     const mySeq=++seq;
     if(controller)controller.abort();
     controller=new AbortController();
+    setIVRLock(false);
     paint("checking","Verificando IP…","Consultando el inventario IVR del destino seleccionado.");
 
     try{
@@ -56,19 +75,24 @@
       const complete=d.coverage_complete===true;
       const allFound=complete&&expected.length>0&&found.length===expected.length;
       const partial=found.length>0&&!allFound;
+      const specificNode=expected.length===1;
 
-      lastState={key:ip+"|"+target,allFound,partial,complete,found,expected,missing,data:d};
+      lastState={key:ip+"|"+target,allFound,partial,complete,specificNode,found,expected,missing,data:d};
 
       if(allFound){
+        if(specificNode)setIVRLock(true);
         paint("block","La IP ya existe en el IVR","Detectada en todos los nodos del destino: "+joinNodes(found)+". No es necesario generar otra solicitud.");
       }else if(partial){
+        setIVRLock(false);
         let detail="Detectada en: "+joinNodes(found)+".";
         if(missing.length)detail+=" Inventario incompleto; faltan: "+joinNodes(missing)+".";
         else detail+=" No está registrada en todos los nodos del destino.";
         paint("warning","La IP ya existe parcialmente",detail);
       }else if(!complete||d.result==="UNKNOWN"){
+        setIVRLock(false);
         paint("warning","Inventario incompleto","No se puede confirmar que la IP sea nueva. Faltan inventarios de: "+(joinNodes(missing)||"uno o más nodos")+".");
       }else{
+        setIVRLock(false);
         paint("ok","IP no encontrada en el inventario IVR","Cobertura completa para el destino seleccionado. Puedes continuar con la solicitud.");
       }
       return lastState;
@@ -76,6 +100,7 @@
       if(err&&err.name==="AbortError")return null;
       if(err&&err.message==="AUTH")return null;
       if(mySeq!==seq)return null;
+      setIVRLock(false);
       lastState={key:ip+"|"+target,error:true};
       paint("warning","No fue posible verificar la IP",err&&err.message?err.message:"Error consultando el inventario IVR.");
       return lastState;
@@ -85,6 +110,7 @@
   function schedule(){
     if(timer)clearTimeout(timer);
     const ip=ipInput.value.trim(),target=nodeSelect.value;
+    setIVRLock(false);
     if(!isIPv4(ip)||!target){clearBox();return}
     paint("checking","Verificando IP…","Consultando el inventario IVR del destino seleccionado.");
     timer=setTimeout(()=>runCheck(),450);
