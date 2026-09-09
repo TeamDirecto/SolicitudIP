@@ -12,7 +12,6 @@
     AliadosD1:"ALIADOS D1",AliadosD2:"ALIADOS D2",AliadosD3:"ALIADOS D3",AliadosD4:"ALIADOS D4",AliadosD5:"ALIADOS D5",
     "ViciIntelya-Dial1":"GENERADORES D1",generadoresmed2:"GENERADORES D2","ViciMED-Dial3":"GENERADORES D3","ViciIntelya-Dial4":"GENERADORES D4","ViciMED-Dial5":"GENERADORES D5"
   };
-
   const aliados=["AliadosD1","AliadosD2","AliadosD3","AliadosD4","AliadosD5"];
   const generadores=["ViciIntelya-Dial1","generadoresmed2","ViciMED-Dial3","ViciIntelya-Dial4","ViciMED-Dial5"];
 
@@ -24,72 +23,84 @@
     const p=String(v||"").trim().split(".");
     return p.length===4&&p.every(x=>/^\d+$/.test(x)&&Number(x)>=0&&Number(x)<=255);
   }
-  function setIVRLock(locked){
+
+  function setSubmitLock(mode){
     const span=submitBtn.querySelector("span");
-    if(locked){
-      submitBtn.dataset.ivrBlocked="1";
+    submitBtn.dataset.ipmLock=mode||"";
+    if(mode==="exists"){
       submitBtn.disabled=true;
-      submitBtn.title="La IP ya existe en todo el destino seleccionado";
+      submitBtn.title="La IP ya está registrada en todo el destino seleccionado";
       if(span)span.textContent="IP ya registrada";
       return;
     }
-    if(submitBtn.dataset.ivrBlocked==="1"){
-      submitBtn.dataset.ivrBlocked="0";
-      submitBtn.disabled=false;
-      submitBtn.removeAttribute("title");
-      if(span)span.textContent="Solicitar acceso";
+    if(mode==="unknown"){
+      submitBtn.disabled=true;
+      submitBtn.title="La verificación no está completa";
+      if(span)span.textContent="Validación incompleta";
+      return;
     }
+    submitBtn.dataset.ipmLock="";
+    submitBtn.disabled=false;
+    submitBtn.removeAttribute("title");
+    if(span)span.textContent="Solicitar acceso";
   }
+
   function setSending(sending){
     const span=submitBtn.querySelector("span");
     if(sending){
       submitBtn.disabled=true;
       if(span)span.textContent="Enviando faltantes...";
-    }else if(submitBtn.dataset.ivrBlocked!=="1"){
+    }else if(!submitBtn.dataset.ipmLock){
       submitBtn.disabled=false;
       if(span)span.textContent="Solicitar acceso";
     }
   }
+
   function clearBox(){
     box.className="ip-check";
     box.innerHTML="";
     lastState=null;
-    setIVRLock(false);
+    setSubmitLock("");
   }
+
+  function sourceMeta(source,node,d){
+    const health=(d.node_health_state&&d.node_health_state[node])||"UNKNOWN";
+    const staleFound=new Set(Array.isArray(d.ivr_stale_found_nodes)?d.ivr_stale_found_nodes:[]);
+    if(source==="BOTH")return {cls:health==="SYNCED"?"both":"both healthbad",icon:"✓",status:"IVR + IP Manager"+(health!=="SYNCED"?" · "+health:"")};
+    if(source==="IP_MANAGER")return {cls:health==="SYNCED"?"ipmanager":"ipmanager healthbad",icon:"◆",status:"IP Manager"+(health!=="SYNCED"?" · "+health:"")};
+    if(source==="IVR_LEGACY")return {cls:"legacy",icon:"✓",status:"IVR legacy"};
+    if(source==="NEW")return {cls:"new",icon:"✕",status:"Nueva"};
+    if(staleFound.has(node))return {cls:"unknown",icon:"⚠",status:"IVR desactualizado"};
+    return {cls:"unknown",icon:"?",status:"Sin confirmar"};
+  }
+
   function nodeMatrix(d){
     const expected=Array.isArray(d.expected_nodes)?d.expected_nodes:[];
     if(!expected.length)return "";
-
-    const found=new Set(Array.isArray(d.found_nodes)?d.found_nodes:[]);
-    const staleFound=new Set(Array.isArray(d.stale_found_nodes)?d.stale_found_nodes:[]);
-    const stale=new Set(Array.isArray(d.stale_nodes)?d.stale_nodes:[]);
-    const missing=new Set(Array.isArray(d.missing_nodes)?d.missing_nodes:[]);
-    const fresh=new Set(Array.isArray(d.fresh_nodes)?d.fresh_nodes:[]);
+    const sources=d.node_sources||{};
 
     const rows=expected.map(node=>{
-      let cls="notfound",icon="✕",status="No existe";
-      if(missing.has(node)){
-        cls="unknown";icon="?";status="Sin inventario";
-      }else if(stale.has(node)){
-        cls="stale";icon="⚠";status=staleFound.has(node)?"Existe · inventario desactualizado":"Inventario desactualizado";
-      }else if(found.has(node)){
-        cls="found";icon="✓";status="Ya existe";
-      }else if(!fresh.has(node)&&d.coverage_complete!==true){
-        cls="unknown";icon="?";status="Sin confirmar";
+      let source=sources[node];
+      if(!source){
+        const found=new Set(Array.isArray(d.found_nodes)?d.found_nodes:[]);
+        const stale=new Set(Array.isArray(d.stale_nodes)?d.stale_nodes:[]);
+        const missing=new Set(Array.isArray(d.missing_nodes)?d.missing_nodes:[]);
+        source=found.has(node)?"IVR_LEGACY":(stale.has(node)||missing.has(node)?"UNKNOWN":"NEW");
       }
-      return '<div class="ip-node '+cls+'"><span class="ip-node-icon">'+icon+'</span><span class="ip-node-name">'+esc(labelNode(node))+'</span><span class="ip-node-status">'+esc(status)+'</span></div>';
+      const meta=sourceMeta(source,node,d);
+      return '<div class="ip-node '+meta.cls+'"><span class="ip-node-icon">'+meta.icon+'</span><span class="ip-node-name">'+esc(labelNode(node))+'</span><span class="ip-node-status">'+esc(meta.status)+'</span></div>';
     }).join("");
 
     return '<div class="ip-node-grid">'+rows+'</div>';
   }
+
   function paint(type,title,detail,data){
     box.className="ip-check show "+type;
     box.innerHTML='<div class="ip-check-title">'+esc(title)+'</div><div class="ip-check-detail">'+esc(detail)+'</div>'+(data?nodeMatrix(data):"");
   }
 
-  function missingRequestTargets(selected,expected,found){
-    const foundSet=new Set(found||[]);
-    const missing=(expected||[]).filter(n=>!foundSet.has(n));
+  function requestTargets(selected,requestable){
+    const missing=Array.isArray(requestable)?requestable:[];
     const targets=[];
     const addDirect=n=>targets.push({node_name:n,destination:labelNode(n)});
 
@@ -97,25 +108,18 @@
       missing.forEach(addDirect);
       return targets;
     }
-
     if(selected!=="ALL_CENTERS")return targets;
 
     if(missing.includes("vicidial43"))addDirect("vicidial43");
     if(missing.includes("VicidialMED"))addDirect("VicidialMED");
 
     const missingAliados=aliados.filter(n=>missing.includes(n));
-    if(missingAliados.length===aliados.length){
-      targets.push({node_name:"ALIADOS",destination:"ALIADOS"});
-    }else{
-      missingAliados.forEach(addDirect);
-    }
+    if(missingAliados.length===aliados.length)targets.push({node_name:"ALIADOS",destination:"ALIADOS"});
+    else missingAliados.forEach(addDirect);
 
     const missingGeneradores=generadores.filter(n=>missing.includes(n));
-    if(missingGeneradores.length===generadores.length){
-      targets.push({node_name:"GENERADORES",destination:"GENERADORES"});
-    }else{
-      missingGeneradores.forEach(addDirect);
-    }
+    if(missingGeneradores.length===generadores.length)targets.push({node_name:"GENERADORES",destination:"GENERADORES"});
+    else missingGeneradores.forEach(addDirect);
 
     return targets;
   }
@@ -128,8 +132,8 @@
     const mySeq=++seq;
     if(controller)controller.abort();
     controller=new AbortController();
-    setIVRLock(false);
-    paint("checking","Verificando IP…","Consultando el inventario IVR del destino seleccionado.");
+    setSubmitLock("");
+    paint("checking","Verificando IP…","Consultando IVR legacy e IP Manager.");
 
     try{
       const url=API+"/ip-check?ip="+encodeURIComponent(ip)+"&node_name="+encodeURIComponent(target);
@@ -143,51 +147,46 @@
       if(mySeq!==seq)return null;
 
       const expected=Array.isArray(d.expected_nodes)?d.expected_nodes:[];
-      const found=Array.isArray(d.found_nodes)?d.found_nodes:[];
-      const missingInventory=Array.isArray(d.missing_nodes)?d.missing_nodes:[];
-      const stale=Array.isArray(d.stale_nodes)?d.stale_nodes:[];
-      const complete=d.coverage_complete===true;
-      const allFound=complete&&expected.length>0&&found.length===expected.length;
-      const partial=found.length>0&&!allFound;
-      const specificNode=expected.length===1;
-      const requestable=complete?expected.filter(n=>!found.includes(n)):[];
+      const present=Array.isArray(d.present_nodes)?d.present_nodes:(Array.isArray(d.found_nodes)?d.found_nodes:[]);
+      const requestable=Array.isArray(d.requestable_nodes)?d.requestable_nodes:expected.filter(n=>!present.includes(n));
+      const unknown=Array.isArray(d.unknown_nodes)?d.unknown_nodes:[];
+      const allPresent=d.all_present===true||(expected.length>0&&present.length===expected.length);
+      const safe=d.safe_to_submit!==false&&unknown.length===0;
+      const partial=present.length>0&&!allPresent;
 
-      lastState={key:ip+"|"+target,allFound,partial,complete,specificNode,found,expected,missingInventory,stale,requestable,data:d};
+      lastState={key:ip+"|"+target,expected,present,requestable,unknown,allPresent,safe,partial,data:d};
 
-      if(allFound){
-        setIVRLock(true);
-        paint("block","La IP ya existe en el IVR","Detectada en todos los nodos del destino. No es necesario generar otra solicitud.",d);
-      }else if(!complete||d.result==="UNKNOWN"){
-        setIVRLock(false);
-        let detail="No se puede confirmar que la IP sea nueva.";
-        if(stale.length)detail+=" Inventario desactualizado: "+joinNodes(stale)+".";
-        if(missingInventory.length)detail+=" Sin inventario: "+joinNodes(missingInventory)+".";
-        paint("warning","Inventario incompleto",detail,d);
+      if(allPresent){
+        setSubmitLock("exists");
+        paint("block","La IP ya está registrada","Existe en todos los nodos del destino seleccionado, ya sea por IVR legacy, IP Manager o ambos.",d);
+      }else if(!safe){
+        setSubmitLock("unknown");
+        paint("warning","Validación incompleta","No es seguro determinar todos los nodos faltantes. Sin confirmar: "+(joinNodes(unknown)||"uno o más nodos")+".",d);
       }else if(partial){
-        setIVRLock(false);
-        paint("warning","La IP ya existe parcialmente","Ya existe en "+found.length+" de "+expected.length+" nodos. Al solicitar, se generará acceso únicamente para los "+requestable.length+" nodos faltantes.",d);
+        setSubmitLock("");
+        paint("warning","La IP ya existe parcialmente","Registrada en "+present.length+" de "+expected.length+" nodos. Se solicitará únicamente acceso para los "+requestable.length+" nodos nuevos.",d);
       }else{
-        setIVRLock(false);
-        paint("ok","IP no encontrada en el inventario IVR","Cobertura completa para el destino seleccionado. Puedes continuar con la solicitud.",d);
+        setSubmitLock("");
+        paint("ok","IP disponible para solicitud","No aparece en IVR legacy ni en IP Manager para el destino seleccionado.",d);
       }
       return lastState;
     }catch(err){
       if(err&&err.name==="AbortError")return null;
       if(err&&err.message==="AUTH")return null;
       if(mySeq!==seq)return null;
-      setIVRLock(false);
-      lastState={key:ip+"|"+target,error:true};
-      paint("warning","No fue posible verificar la IP",err&&err.message?err.message:"Error consultando el inventario IVR.");
+      lastState={key:ip+"|"+target,error:true,safe:false};
+      setSubmitLock("unknown");
+      paint("warning","No fue posible verificar la IP",err&&err.message?err.message:"Error consultando el estado de la IP.");
       return lastState;
     }
   }
 
   function schedule(){
     if(timer)clearTimeout(timer);
+    setSubmitLock("");
     const ip=ipInput.value.trim(),target=nodeSelect.value;
-    setIVRLock(false);
     if(!isIPv4(ip)||!target){clearBox();return}
-    paint("checking","Verificando IP…","Consultando el inventario IVR del destino seleccionado.");
+    paint("checking","Verificando IP…","Consultando IVR legacy e IP Manager.");
     timer=setTimeout(()=>runCheck(),450);
   }
 
@@ -195,8 +194,7 @@
     const selected=nodeSelect.value;
     const ip=ipInput.value.trim();
     const requester=requesterInput.value.trim();
-    const targets=missingRequestTargets(selected,result.expected,result.found);
-
+    const targets=requestTargets(selected,result.requestable);
     if(!targets.length)return false;
 
     setSending(true);
@@ -224,13 +222,11 @@
       duplicates.forEach(r=>parts.push(r.destination+": ya existe"));
       errors.forEach(r=>parts.push(r.destination+": error"));
 
-      if(errors.length){
-        show("error","Solicitud procesada parcialmente. "+parts.join(" | "));
-      }else{
+      if(errors.length)show("error","Solicitud procesada parcialmente. "+parts.join(" | "));
+      else{
         show("success","Se solicitaron únicamente los nodos faltantes. "+parts.join(" | "));
         requestForm.reset();
       }
-
       await refresh();
       return true;
     }catch(err){
@@ -251,20 +247,18 @@
     e.stopImmediatePropagation();
 
     const result=await runCheck();
-    if(result&&result.allFound){
-      show("error","La IP ya existe en todos los nodos del destino seleccionado; la solicitud no fue enviada.");
+    if(!result||result.error||!result.safe){
+      show("error","La validación no está completa; la solicitud no fue enviada.");
+      return;
+    }
+    if(result.allPresent){
+      show("error","La IP ya está registrada en todos los nodos del destino seleccionado; la solicitud no fue enviada.");
       return;
     }
 
     const selected=nodeSelect.value;
     const grouped=selected==="ALIADOS"||selected==="GENERADORES"||selected==="ALL_CENTERS";
-
-    if(grouped&&(!result||result.error||!result.complete)){
-      show("error","No se puede determinar con seguridad qué nodos faltan. La solicitud agrupada no fue enviada; espera a que el inventario vuelva a estar completo.");
-      return;
-    }
-
-    if(result&&grouped&&result.complete&&result.partial){
+    if(grouped&&result.partial){
       await submitMissingOnly(result);
       return;
     }
