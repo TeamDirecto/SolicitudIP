@@ -7,6 +7,43 @@
   const submitBtn=document.getElementById("submitBtn");
   if(!ipInput||!requesterInput||!nodeSelect||!box||!requestForm||!submitBtn)return;
 
+  const requesterField=requesterInput.closest(".field");
+  const requestsTable=document.getElementById("requestsTable");
+  const requestsBody=document.getElementById("requestsBody");
+  const loginForm=document.getElementById("loginForm");
+  const loginUsername=document.getElementById("loginUsername");
+  const sessionUser=document.getElementById("sessionUser");
+
+  function currentRequester(){
+    return String((sessionUser&&sessionUser.textContent)||(loginUsername&&loginUsername.value)||"MED_REQ").trim()||"MED_REQ";
+  }
+  function ensureRequester(){
+    if(!requesterInput.value.trim())requesterInput.value=currentRequester();
+  }
+  function hideCenterUi(){
+    if(requesterField)requesterField.hidden=true;
+    if(requestsTable){
+      const th=requestsTable.querySelector("thead th:nth-child(3)");
+      if(th)th.hidden=true;
+    }
+    if(requestsBody){
+      requestsBody.querySelectorAll("tr").forEach(tr=>{
+        if(tr.children[2])tr.children[2].hidden=true;
+      });
+    }
+  }
+
+  hideCenterUi();
+  ensureRequester();
+  if(loginForm){
+    loginForm.addEventListener("submit",()=>{
+      requesterInput.value=String((loginUsername&&loginUsername.value)||"MED_REQ").trim()||"MED_REQ";
+    },true);
+  }
+  if(requestsBody){
+    new MutationObserver(hideCenterUi).observe(requestsBody,{childList:true});
+  }
+
   const nodeNames={
     vicidial43:"VICIDIAL 43",VicidialMED:"VICIDIAL MED",
     AliadosD1:"ALIADOS D1",AliadosD2:"ALIADOS D2",AliadosD3:"ALIADOS D3",AliadosD4:"ALIADOS D4",AliadosD5:"ALIADOS D5",
@@ -240,6 +277,8 @@
   ipInput.addEventListener("input",schedule);
   nodeSelect.addEventListener("change",schedule);
   requestForm.addEventListener("reset",()=>setTimeout(clearBox,0));
+  requestForm.addEventListener("reset",()=>setTimeout(()=>{ensureRequester();hideCenterUi();},0));
+  submitBtn.addEventListener("click",ensureRequester,true);
 
   requestForm.addEventListener("submit",async e=>{
     if(bypassSubmit){bypassSubmit=false;return}
