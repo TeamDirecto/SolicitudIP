@@ -15,10 +15,10 @@
   const sessionUser=document.getElementById("sessionUser");
 
   function currentRequester(){
-    return String((sessionUser&&sessionUser.textContent)||(loginUsername&&loginUsername.value)||"MED_REQ").trim()||"MED_REQ";
+    return String((sessionUser&&sessionUser.textContent)||(loginUsername&&loginUsername.value)||"").trim();
   }
   function ensureRequester(){
-    if(!requesterInput.value.trim())requesterInput.value=currentRequester();
+    if(!requesterInput.value.trim()){const current=currentRequester();if(current)requesterInput.value=current;}
   }
   function hideCenterUi(){
     if(requesterField)requesterField.hidden=true;
@@ -37,7 +37,7 @@
   ensureRequester();
   if(loginForm){
     loginForm.addEventListener("submit",()=>{
-      requesterInput.value=String((loginUsername&&loginUsername.value)||"MED_REQ").trim()||"MED_REQ";
+      requesterInput.value=String((loginUsername&&loginUsername.value)||"").trim();
     },true);
   }
   if(requestsBody){
