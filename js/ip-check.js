@@ -46,11 +46,11 @@
 
   const nodeNames={
     vicidial43:"VICIDIAL 43",VicidialMED:"VICIDIAL MED",
-    AliadosD1:"ALIADOS D1",AliadosD2:"ALIADOS D2",AliadosD3:"ALIADOS D3",AliadosD4:"ALIADOS D4",AliadosD5:"ALIADOS D5",
-    "ViciIntelya-Dial1":"GENERADORES D1",generadoresmed2:"GENERADORES D2","ViciMED-Dial3":"GENERADORES D3","ViciIntelya-Dial4":"GENERADORES D4","ViciMED-Dial5":"GENERADORES D5"
+    AliadosD1:"ALIADOS D1",AliadosD2:"ALIADOS D2",AliadosD3:"ALIADOS D3",AliadosD4:"ALIADOS D4",AliadosD5:"ALIADOS D5",AliadosReplica:"ALIADOS REPLICA",
+    "ViciIntelya-Dial1":"GENERADORES D1",generadoresmed2:"GENERADORES D2","ViciMED-Dial3":"GENERADORES D3","ViciIntelya-Dial4":"GENERADORES D4","ViciMED-Dial5":"GENERADORES D5",GeneradoresReplica:"GENERADORES REPLICA"
   };
-  const aliados=["AliadosD1","AliadosD2","AliadosD3","AliadosD4","AliadosD5"];
-  const generadores=["ViciIntelya-Dial1","generadoresmed2","ViciMED-Dial3","ViciIntelya-Dial4","ViciMED-Dial5"];
+  const aliados=["AliadosD1","AliadosD2","AliadosD3","AliadosD4","AliadosD5","AliadosReplica"];
+  const generadores=["ViciIntelya-Dial1","generadoresmed2","ViciMED-Dial3","ViciIntelya-Dial4","ViciMED-Dial5","GeneradoresReplica"];
 
   let timer=null,controller=null,seq=0,lastState=null,bypassSubmit=false;
 
@@ -232,7 +232,10 @@
     const ip=ipInput.value.trim();
     const requester=requesterInput.value.trim();
     const targets=requestTargets(selected,result.requestable);
-    if(!targets.length)return false;
+    if(!targets.length){
+      show("error","No fue posible determinar los nodos faltantes para enviar la solicitud. Actualiza la página y vuelve a intentarlo.");
+      return true;
+    }
 
     setSending(true);
     message.className="message";
