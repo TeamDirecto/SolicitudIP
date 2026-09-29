@@ -56,9 +56,33 @@
 
   function labelNode(n){return nodeNames[n]||n}
   function joinNodes(nodes){return (nodes||[]).map(labelNode).join(", ")}
-  function isIPv4(v){
+  function ipv4Parts(v){
     const p=String(v||"").trim().split(".");
-    return p.length===4&&p.every(x=>/^\d+$/.test(x)&&Number(x)>=0&&Number(x)<=255);
+    if(p.length!==4||!p.every(x=>/^\d+$/.test(x)&&Number(x)>=0&&Number(x)<=255))return null;
+    return p.map(Number);
+  }
+
+  function isIPv4(v){
+    return ipv4Parts(v)!==null;
+  }
+
+  function isPublicIPv4(v){
+    const p=ipv4Parts(v);
+    if(!p)return false;
+    const [a,b,c]=p;
+
+    // Rangos que nunca deben solicitarse como acceso público.
+    if(a===0||a===10||a===127||a>=224)return false;
+    if(a===100&&b>=64&&b<=127)return false;          // CGNAT
+    if(a===169&&b===254)return false;                // link-local
+    if(a===172&&b>=16&&b<=31)return false;           // RFC1918
+    if(a===192&&b===168)return false;                // RFC1918
+    if(a===192&&b===0&&c===2)return false;           // documentación
+    if(a===198&&(b===18||b===19))return false;       // benchmarking
+    if(a===198&&b===51&&c===100)return false;        // documentación
+    if(a===203&&b===0&&c===113)return false;         // documentación
+
+    return true;
   }
 
   function setSubmitLock(mode){
@@ -74,6 +98,12 @@
       submitBtn.disabled=true;
       submitBtn.title="La verificación no está completa";
       if(span)span.textContent="Validación incompleta";
+      return;
+    }
+    if(mode==="invalid"){
+      submitBtn.disabled=true;
+      submitBtn.title="Sólo se permiten direcciones IPv4 públicas";
+      if(span)span.textContent="IP no permitida";
       return;
     }
     submitBtn.dataset.ipmLock="";
@@ -165,6 +195,12 @@
     const ip=ipInput.value.trim();
     const target=nodeSelect.value;
     if(!isIPv4(ip)||!target){clearBox();return null}
+    if(!isPublicIPv4(ip)){
+      lastState={key:ip+"|"+target,error:true,safe:false,invalid:true};
+      setSubmitLock("invalid");
+      paint("block","IP no permitida","La dirección "+ip+" pertenece a un rango privado, reservado o no enrutable públicamente. Sólo se permiten direcciones IPv4 públicas.");
+      return lastState;
+    }
 
     const mySeq=++seq;
     if(controller)controller.abort();
@@ -211,9 +247,16 @@
       if(err&&err.name==="AbortError")return null;
       if(err&&err.message==="AUTH")return null;
       if(mySeq!==seq)return null;
-      lastState={key:ip+"|"+target,error:true,safe:false};
-      setSubmitLock("unknown");
-      paint("warning","No fue posible verificar la IP",err&&err.message?err.message:"Error consultando el estado de la IP.");
+      const msg=err&&err.message?err.message:"Error consultando el estado de la IP.";
+      const invalidPublic=/IPv4 pública válida|IPv4 publica valida|IP no permitida/i.test(msg);
+      lastState={key:ip+"|"+target,error:true,safe:false,invalid:invalidPublic};
+      if(invalidPublic){
+        setSubmitLock("invalid");
+        paint("block","IP no permitida",msg);
+      }else{
+        setSubmitLock("unknown");
+        paint("warning","No fue posible verificar la IP",msg);
+      }
       return lastState;
     }
   }
@@ -223,6 +266,12 @@
     setSubmitLock("");
     const ip=ipInput.value.trim(),target=nodeSelect.value;
     if(!isIPv4(ip)||!target){clearBox();return}
+    if(!isPublicIPv4(ip)){
+      lastState={key:ip+"|"+target,error:true,safe:false,invalid:true};
+      setSubmitLock("invalid");
+      paint("block","IP no permitida","La dirección "+ip+" pertenece a un rango privado, reservado o no enrutable públicamente. Sólo se permiten direcciones IPv4 públicas.");
+      return;
+    }
     paint("checking","Verificando IP…","Consultando IVR legacy e IP Manager.");
     timer=setTimeout(()=>runCheck(),450);
   }
