@@ -248,9 +248,14 @@
       if(err&&err.message==="AUTH")return null;
       if(mySeq!==seq)return null;
       const msg=err&&err.message?err.message:"Error consultando el estado de la IP.";
+      const geoBlocked=/fuera de México|fuera de Mexico|geolocalizada.*México|geolocalizada.*Mexico|solo se permiten.*México|sólo se permiten.*México|solo se permiten.*Mexico|sólo se permiten.*Mexico/i.test(msg);
       const invalidPublic=/IPv4 pública válida|IPv4 publica valida|IP no permitida/i.test(msg);
-      lastState={key:ip+"|"+target,error:true,safe:false,invalid:invalidPublic};
-      if(invalidPublic){
+      const blocked=geoBlocked||invalidPublic;
+      lastState={key:ip+"|"+target,error:true,safe:false,invalid:blocked,geo_blocked:geoBlocked};
+      if(geoBlocked){
+        setSubmitLock("invalid");
+        paint("block","IP fuera de México",msg);
+      }else if(invalidPublic){
         setSubmitLock("invalid");
         paint("block","IP no permitida",msg);
       }else{
