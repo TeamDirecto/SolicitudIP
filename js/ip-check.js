@@ -47,10 +47,12 @@
   const nodeNames={
     vicidial43:"VICIDIAL 43",VicidialMED:"VICIDIAL MED",
     AliadosD1:"ALIADOS D1",AliadosD2:"ALIADOS D2",AliadosD3:"ALIADOS D3",AliadosD4:"ALIADOS D4",AliadosD5:"ALIADOS D5",AliadosReplica:"ALIADOS REPLICA",
-    "ViciIntelya-Dial1":"GENERADORES D1",generadoresmed2:"GENERADORES D2","ViciMED-Dial3":"GENERADORES D3","ViciIntelya-Dial4":"GENERADORES D4","ViciMED-Dial5":"GENERADORES D5",GeneradoresReplica:"GENERADORES REPLICA"
+    "ViciIntelya-Dial1":"GENERADORES D1",generadoresmed2:"GENERADORES D2","ViciMED-Dial3":"GENERADORES D3","ViciIntelya-Dial4":"GENERADORES D4","ViciMED-Dial5":"GENERADORES D5",GeneradoresReplica:"GENERADORES REPLICA",
+    vici126:"CENTROSMED D1",vici99:"CENTROSMED D2",vici98:"CENTROSMED D3",vici169:"CENTROSMED D4",vicidial137:"CENTROSMED REPLICA"
   };
   const aliados=["AliadosD1","AliadosD2","AliadosD3","AliadosD4","AliadosD5","AliadosReplica"];
   const generadores=["ViciIntelya-Dial1","generadoresmed2","ViciMED-Dial3","ViciIntelya-Dial4","ViciMED-Dial5","GeneradoresReplica"];
+  const centrosmed=["vici126","vici99","vici98","vici169","vicidial137"];
 
   let timer=null,controller=null,seq=0,lastState=null,bypassSubmit=false;
 
@@ -187,6 +189,10 @@
     const missingGeneradores=generadores.filter(n=>missing.includes(n));
     if(missingGeneradores.length===generadores.length)targets.push({node_name:"GENERADORES",destination:"GENERADORES"});
     else missingGeneradores.forEach(addDirect);
+
+    const missingCentrosmed=centrosmed.filter(n=>missing.includes(n));
+    if(missingCentrosmed.length===centrosmed.length)targets.push({node_name:"CENTROSMED",destination:"CENTROSMED"});
+    else missingCentrosmed.forEach(addDirect);
 
     return targets;
   }
